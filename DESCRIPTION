@@ -1,11 +1,24 @@
 Package: cdnbcr
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: An EM Algorithm for Estimation in the Correlated Destructive Negative Binomial Cure Rate Model
+Version: 0.0.0.9000
+Authors@R: c(person("Rodrigo", "De Medeiros",
+                      email = "rodrigo.matheus@live.com",
+                      role = c("aut", "cre"),
+              comment = c(ORCID = "0000-0001-8101-3038")),
+              person("Diego", "Gallardo",
+                      email = "diego.gallardo.mateluna@gmail.com",
+                      role = c("aut"),
+              comment = c(ORCID = "0000-0001-8184-7403")))
+Maintainer: Rodrigo M. R. de Medeiros <rodrigo.matheus@live.com>
+Description: An EM algorithm for maximum likelihood estimation in the correlated 
+    destructive negative binomial cure rate model. This model describes the time
+    until a specific event occurs (e.g., patient survival times). He assumes that
+    the occurrence of the event in the population is due to several competing
+    causes, which can be correlated. The model also deals with the possibility
+    of a fraction of individuals who are not susceptible to that event.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/rdmatheus/cdnbcr
+BugReports: https://github.com/rdmatheus/cdnbcr/issues
