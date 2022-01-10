@@ -99,6 +99,14 @@ inits <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
     iter <- iter + 1
   }
 
+  aux <- survival::survfit(survival::Surv(tobs, delta) ~ 1, se.fit = FALSE)
+  q0 <- min(aux$surv)
+
+  if(q0 < 0.5 & type == "opt3"){
+    warning("type 3 cannot be used for this sample. Instead, type 1 was used")
+    type <- "opt1"
+  }
+
   switch (type,
           opt1 = {
             beta10 <- psi[1:r1]
@@ -113,16 +121,12 @@ inits <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
           },
 
           opt2 = {
-            aux <- survival::survfit(survival::Surv(tobs, delta) ~ 1, se.fit = FALSE)
-            q0 <- min(aux$surv)
             beta10 <- c(log(2) + log(1/q0 - 1), rep(0, r1 - 1))
             beta20 <- rep(0, r2)
             if (phi_id) phi0 <- 1 else phi0 <- NULL
           },
 
           opt3 = {
-            aux <- survival::survfit(survival::Surv(tobs, delta) ~ 1, se.fit = FALSE)
-            q0 <- min(aux$surv)
             beta10 <- rep(0, r1)
             beta20 <- c(stats::qlogis(1/q0 - 1), rep(0, r2 - 1))
             if (phi_id) phi0 <- 1 else phi0 <- NULL
