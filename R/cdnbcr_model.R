@@ -11,15 +11,15 @@ dcbern <- function(x, p, alpha){
   n <- dim(x)[1]
   d <- dim(x)[2]
 
-  if(alpha < 0 || alpha > 1) return(NaN)
+  if(alpha < 0 | alpha > 1) return(NaN)
 
   p <- matrix(p, ncol = d)
   p <- do.call(rbind, replicate(n/dim(p)[1], p, simplify = FALSE))
 
   pmf <- matrix(0, n, d)
-  pmf[which(p < 0 || p > 1, arr.ind = TRUE)] <- NaN
+  pmf[which(p < 0 | p > 1, arr.ind = TRUE)] <- NaN
 
-  id <- which(x == 0 || x == 1 & !is.nan(pmf), arr.ind = TRUE)
+  id <- which(x == 0 | x == 1 & !is.nan(pmf), arr.ind = TRUE)
 
   pmf[id] <- (1 - p[id]) * stats::dbinom(x[id], 1, p[id] * (1 - alpha)) +
                   p[id]  * stats::dbinom(x, 1, p[id] + alpha - p[id] * alpha)
@@ -56,7 +56,8 @@ dcdnbcr <- function(x, theta, phi, p, alpha, mu, sigma, log.p = FALSE){
   n <- dim(x)[1]
   d <- dim(x)[2]
 
-  if(phi < 0 || alpha < 0 || alpha > 1 || sigma < 0) return(NaN)
+  if(all(x < 0) | all(theta < 0) | phi < 0 | all(p < 0) | all(p > 1) |
+     alpha < 0 | alpha > 1 | all(mu < 0) | sigma < 0) return(NaN)
 
   ## Parameter indexation
   theta <- matrix(theta, ncol = d)
@@ -67,9 +68,12 @@ dcdnbcr <- function(x, theta, phi, p, alpha, mu, sigma, log.p = FALSE){
   p <- do.call(rbind, replicate(n/dim(p)[1], p, simplify = FALSE))
   mu <- do.call(rbind, replicate(n/dim(mu)[1], mu, simplify = FALSE))
 
+  if(is.null(theta)) stop("theta and x do not have conforming sizes")
+  if(is.null(p)) stop("p and x do not have conforming sizes")
+  if(is.null(mu)) stop("mu and x do not have conforming sizes")
 
   pmf <- matrix(-Inf, n, d)
-  pmf[which(x < 0 || theta < 0 || p < 0 || p > 1 || mu < 0, arr.ind = TRUE)] <- NaN
+  pmf[which(x < 0 | theta < 0 | p < 0 | p > 1 | mu < 0, arr.ind = TRUE)] <- NaN
 
   id <- which(!is.nan(pmf), arr.ind = TRUE)
 
@@ -77,6 +81,7 @@ dcdnbcr <- function(x, theta, phi, p, alpha, mu, sigma, log.p = FALSE){
   pmf[id] <- dDist(x[id], mu[id], sigma, log = TRUE) +
     log(pgf1D(1 - pDist(x[id], mu[id], sigma), theta[id], phi, p[id], alpha))
 
+  if(d == 1L) pmf <- as.vector(pmf)
   if(log.p) pmf else exp(pmf)
 }
 
@@ -97,7 +102,8 @@ pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p
   n <- dim(q)[1]
   d <- dim(q)[2]
 
-  if(phi < 0 || alpha < 0 || alpha > 1 || sigma < 0) return(NaN)
+  if(all(q < 0) | all(theta < 0) | phi < 0 | all(p < 0) | all(p > 1) |
+     alpha < 0 | alpha > 1 | all(mu < 0) | sigma < 0) return(NaN)
 
   ## Parameter indexation
   theta <- matrix(theta, ncol = d)
@@ -108,8 +114,12 @@ pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p
   p <- do.call(rbind, replicate(n/dim(p)[1], p, simplify = FALSE))
   mu <- do.call(rbind, replicate(n/dim(mu)[1], mu, simplify = FALSE))
 
+  if(is.null(theta)) stop("theta and x do not have conforming sizes")
+  if(is.null(p)) stop("p and x do not have conforming sizes")
+  if(is.null(mu)) stop("mu and x do not have conforming sizes")
+
   cdf <- matrix(0, n, d)
-  cdf[which(theta < 0 || p < 0 || p > 1 || mu < 0, arr.ind = TRUE)] <- NaN
+  cdf[which(theta < 0 | p < 0 | p > 1 | mu < 0, arr.ind = TRUE)] <- NaN
 
   id <- which(!is.nan(cdf), arr.ind = TRUE)
 
@@ -118,6 +128,7 @@ pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p
 
   if(!lower.tail) cdf <- 1 - cdf
   if(log.p) cdf <- log(cdf)
+  if(d == 1L) cdf <- as.vector(cdf)
   cdf
 }
 
