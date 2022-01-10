@@ -16,7 +16,7 @@ pgfDNB <- function(s, theta, phi, p, alpha){
   n <- dim(s)[1]
   d <- dim(s)[2]
 
-  if(phi <= 0 || alpha < 0 || alpha > 1) return(NaN)
+  if(phi <= 0 | alpha < 0 | alpha > 1) return(NaN)
 
   theta <- matrix(theta, ncol = d)
       p <- matrix(p, ncol = d)
@@ -43,7 +43,7 @@ pgf1DNB <- function(s, theta, phi, p, alpha){
   n <- dim(s)[1]
   d <- dim(s)[2]
 
-  if(phi <= 0 || alpha < 0 || alpha > 1) return(NaN)
+  if(phi <= 0 | alpha < 0 | alpha > 1) return(NaN)
 
   theta <- matrix(theta, ncol = d)
   p <- matrix(p, ncol = d)
