@@ -71,8 +71,7 @@ inits <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
   {
     beta2<-matrix(beta2,ncol=1)
     p <- stats::plogis(Z2%*%beta2)
-    ll <- -sum(D * log(p) + (M - D) * log(1 - p))
-    ll
+    -sum(D * log(p) + (M - D) * log(1 - p))
   }
 
 
@@ -87,11 +86,11 @@ inits <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
     beta1 <- psi[1:r1]
     beta2 <- psi[(r1 + 1):(r1 + r2)]
     lambdab <- psi[(r1 + r2 + 1):(r1 + r2 + 2)]
-    maximo1 <- stats::optim(lambdab, logveroEM.lambdab, method = "BFGS", D = D,hessian = FALSE)
+    maximo1 <- stats::optim(lambdab, logveroEM.lambdab, method = "BFGS", D = D)
     lambdab <- maximo1$par
-    maximo2 <- stats::optim(beta1, logveroEM.betab1, method = "BFGS", M = M, phi = phi, hessian = FALSE)
+    maximo2 <- stats::optim(beta1, logveroEM.betab1, method = "BFGS", M = M, phi = phi)
     beta1 <- maximo2$par
-    maximo3 <- stats::optim(beta2, logveroEM.betab2,method = "BFGS", M = M, D = D, hessian = FALSE)
+    maximo3 <- stats::optim(beta2, logveroEM.betab2,method = "BFGS", M = M, D = D)
     beta2 <- maximo3$par
     psi.aux <- c(beta1, beta2, lambdab)
     ind <- ifelse(max(abs(psi - psi.aux)) < 0.001, 1, 0)
@@ -103,7 +102,7 @@ inits <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
   q0 <- min(aux$surv)
 
   if(q0 < 0.5 & type == "opt3"){
-    warning("type 3 cannot be used for this sample. Instead, type 1 was used")
+    warning("type 3 initial values cannot be used for this sample. Instead, type 1 was used")
     type <- "opt1"
   }
 
