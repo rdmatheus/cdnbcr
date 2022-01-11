@@ -18,11 +18,8 @@ pgfDNB <- function(s, theta, phi, p, alpha){
 
   if(phi <= 0 | alpha < 0 | alpha > 1) return(NaN)
 
-  theta <- matrix(theta, ncol = d)
-      p <- matrix(p, ncol = d)
-
-  theta <- do.call(rbind, replicate(n/dim(theta)[1], theta, simplify = FALSE))
-      p <- do.call(rbind, replicate(n/dim(p)[1], p, simplify = FALSE))
+  theta <- matrix(theta, nrow = n, ncol = d)
+      p <- matrix(p, nrow = n, ncol = d)
 
  pgf <- matrix(NaN, n, d)
   id <- which(theta > 0 & 0 <= p & p <= 1, arr.ind = TRUE)
@@ -45,11 +42,8 @@ pgf1DNB <- function(s, theta, phi, p, alpha){
 
   if(phi <= 0 | alpha < 0 | alpha > 1) return(NaN)
 
-  theta <- matrix(theta, ncol = d)
-  p <- matrix(p, ncol = d)
-
-  theta <- do.call(rbind, replicate(n/dim(theta)[1], theta, simplify = FALSE))
-  p <- do.call(rbind, replicate(n/dim(p)[1], p, simplify = FALSE))
+  theta <- matrix(theta, nrow = n, ncol = d)
+  p <- matrix(p, nrow = n, ncol = d)
 
   pgf1 <- matrix(NaN, n, d)
   id <- which(theta > 0 & 0 <= p & p <= 1, arr.ind = TRUE)
