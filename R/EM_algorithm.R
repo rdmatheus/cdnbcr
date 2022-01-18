@@ -20,6 +20,7 @@ control_EM <- function(method = "BFGS", maxit_EM = 1000, hessian = TRUE,
 
 # EM algorithm
 EM <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
+               se_type = c("oakes", "louis", "hessian", "null"),
                control = control_EM(...), ...)
 {
   # Initial definitions --------------------------------------------------------
@@ -39,14 +40,15 @@ EM <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
 
   ## Survival time distribution
   Dist <- "rweibull"
-  pDist <- get(paste0("p", Dist))
-  dDist <- get(paste0("d", Dist))
+  pDist <- get(paste0("p", Dist), mode = "function", envir = parent.frame())
+  dDist <- get(paste0("d", Dist), mode = "function", envir = parent.frame())
 
 
   ## phi identifier
-  phi_id <- get(paste0("extrap", Dwp))
+  phi_id <- get(paste0("extrap", Dwp), mode = "logical", envir = parent.frame())
 
   ## Control list --------------------------------------------------------------
+  control_aux <- control
   method <- control$method
   maxit_EM <- control$maxit_EM
   hessian <- control$hessian
@@ -367,6 +369,46 @@ EM <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
     convergence <- 0
   }
 
+  se_type <- match.arg(se_type, c("oakes", "louis", "hessian", "null"))
+
+  switch (se_type,
+    oakes = {
+      a1 <- pracma::jacobian(deriv.Q.psi, x0 = psi, psik = psi, tobs = tobs,
+                             delta = delta, Z1 = Z1, Z2 = Z2, Z3 = Z3,
+                             control = control_aux)
+      a2 <- pracma::jacobian(deriv.Q.psik, x0 = psi, psi = psi, tobs = tobs,
+                             delta = delta, Z1 = Z1, Z2 = Z2, Z3 = Z3,
+                             control = control_aux)
+
+      hessian <- a1 + a2
+      vcov <- try(solve(-hessian))
+      #se <- try(sqrt(diag(vcov)))
+      error <- unique(grepl("Error", vcov))
+      if (error) vcov <- matrix(NaN, length(psi), length(psi))
+    },
+
+    louis = {
+      hessian <- Louis(psi, tobs, delta, Z1, Z2, Z3, alpha_id)
+      vcov <- try(solve(-hessian))
+      #se <- try(sqrt(diag(vcov)))
+      error <- unique(grepl("Error", vcov))
+      if (error) vcov <- matrix(NaN, length(psi), length(psi))
+    },
+
+    hessian = {
+      hessian <- pracma::hessian(llike, x0 = psi, tobs = tobs, delta = delta,
+                                 Z1 = Z1, Z2 = Z2, Z3 = Z3)
+      vcov <- try(solve(-hessian))
+      #se <- try(sqrt(diag(vcov)))
+      error <- unique(grepl("Error", vcov))
+      if (error) vcov <- matrix(NaN, length(psi), length(psi))
+    },
+
+    null = {
+      se <- NULL
+    }
+  )
+
   #if(hessian){
   #  hessian <- -pracma::hessian(ll, x0 = psi0_aux,
   #                              tobs = tobs, delta = delta, Z1 = Z1, Z2 = Z2, Z3 = Z3,
@@ -379,7 +421,7 @@ EM <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
        iterations = it,
        convergence = convergence,
        inits = start,
-       hessian = hessian)
+       vcov = vcov)
 
 }
 
