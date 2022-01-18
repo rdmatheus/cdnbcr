@@ -17,7 +17,7 @@ inits <- function(tobs, delta, Z1 = NULL, Z2 = NULL, Z3 = NULL,
 
   Dwp <- "DNB"
 
-  phi_id <- get(paste0("extrap", Dwp)) # phi identifier
+  phi_id <- get(paste0("extrap", Dwp), mode = "logical", envir = parent.frame()) # phi identifier
   alpha_id <- alpha                    # alpha identifier
 
   ## Type of initial values
