@@ -59,19 +59,18 @@ dcdnbcr <- function(x, theta, phi, p, alpha, mu, sigma, log.p = FALSE){
   if(all(x < 0) | all(theta < 0) | phi < 0 | all(p < 0) | all(p > 1) |
      alpha < 0 | alpha > 1 | all(mu < 0) | sigma < 0) return(NaN)
 
-
-  # if (is.vector(theta)) theta <- matrix(theta, nrow = length(theta))
-  # if (is.vector(p)) p <- matrix(p, nrow = length(p))
-  # if (is.vector(mu)) mu <- matrix(mu, nrow = length(mu))
-  #
-  # if(dim(theta)[1] != n) stop("theta and x do not have conforming sizes")
-  # if(dim(p)[1] != n) stop("p and x do not have conforming sizes")
-  # if(dim(mu)[1] != n) stop("mu and x do not have conforming sizes")
-
   ## Parameter indexation
-  theta <- matrix(theta, nrow = n, ncol = d)
-  p <- matrix(p, nrow = n, ncol = d)
-  mu <- matrix(mu, nrow = n, ncol = d)
+  theta <- matrix(theta, ncol = d)
+  p <- matrix(p, ncol = d)
+  mu <- matrix(mu, ncol = d)
+
+  # if(n%%dim(theta)[1] != 0) stop("theta and x do not have conforming sizes")
+  # if(n%%dim(p)[1] != n) stop("p and x do not have conforming sizes")
+  # if(n%%dim(mu)[1] != n) stop("mu and x do not have conforming sizes")
+
+  theta <- do.call(rbind, replicate(n/dim(theta)[1], theta, simplify=FALSE))
+  p <- do.call(rbind, replicate(n/dim(p)[1], p, simplify=FALSE))
+  mu <- do.call(rbind, replicate(n/dim(mu)[1], mu, simplify=FALSE))
 
   pmf <- matrix(-Inf, n, d)
   pmf[which(x < 0 | theta < 0 | p < 0 | p > 1 | mu < 0, arr.ind = TRUE)] <- NaN
@@ -91,11 +90,11 @@ pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p
 
   ## Destructive weighted Poisson model
   Dwp <- "DNB"
-  pgfD <- get(paste0("pgf", Dwp))
+  pgfD <- get(paste0("pgf", Dwp), mode = "function", envir = parent.frame())
 
   ## Survival time distribution
   Dist <- "rweibull"
-  pDist <- get(paste0("p", Dist))
+  pDist <- get(paste0("p", Dist), mode = "function", envir = parent.frame())
 
   if (is.vector(q))
     q <- matrix(q, nrow = length(q))
@@ -106,18 +105,18 @@ pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p
   if(all(q < 0) | all(theta < 0) | phi < 0 | all(p < 0) | all(p > 1) |
      alpha < 0 | alpha > 1 | all(mu < 0) | sigma < 0) return(NaN)
 
-  # if (is.vector(theta)) theta <- matrix(theta, nrow = length(theta))
-  # if (is.vector(p)) p <- matrix(p, nrow = length(p))
-  # if (is.vector(mu)) mu <- matrix(mu, nrow = length(mu))
-  #
-  # if(dim(theta)[1] != n) stop("theta and x do not have conforming sizes")
-  # if(dim(p)[1] != n) stop("p and x do not have conforming sizes")
-  # if(dim(mu)[1] != n) stop("mu and x do not have conforming sizes")
-
   ## Parameter indexation
-  theta <- matrix(theta, nrow = n, ncol = d)
-  p <- matrix(p, nrow = n, ncol = d)
-  mu <- matrix(mu, nrow = n, ncol = d)
+  theta <- matrix(theta, ncol = d)
+  p <- matrix(p, ncol = d)
+  mu <- matrix(mu, ncol = d)
+
+  # if(n%%dim(theta)[1] != 0) stop("theta and x do not have conforming sizes")
+  # if(n%%dim(p)[1] != n) stop("p and x do not have conforming sizes")
+  # if(n%%dim(mu)[1] != n) stop("mu and x do not have conforming sizes")
+
+  theta <- do.call(rbind, replicate(n/dim(theta)[1], theta, simplify=FALSE))
+  p <- do.call(rbind, replicate(n/dim(p)[1], p, simplify=FALSE))
+  mu <- do.call(rbind, replicate(n/dim(mu)[1], mu, simplify=FALSE))
 
   cdf <- matrix(0, n, d)
   cdf[which(theta < 0 | p < 0 | p > 1 | mu < 0, arr.ind = TRUE)] <- NaN
@@ -138,11 +137,11 @@ rcdnbcr <- function(n, theta, phi, p, alpha, mu, sigma){
 
   ## Destructive weighted Poisson model
   Dwp <- "DNB"
-  rDwp <- get(paste0("r", Dwp))
+  rDwp <- get(paste0("r", Dwp), mode = "function", envir = parent.frame())
 
   ## Survival time distribution
   Dist <- "rweibull"
-  rDist <- get(paste0("r", Dist))
+  rDist <- get(paste0("r", Dist), mode = "function", envir = parent.frame())
 
   ## Random generation
   m <- rDwp(n, theta, phi)
@@ -158,7 +157,7 @@ cure_rate <- function(theta, phi, p, alpha){
 
   ## Destructive weighted Poisson model
   Dwp <- "DNB"
-  pgfD <- get(paste0("pgf", Dwp))
+  pgfD <- get(paste0("pgf", Dwp), mode = "function", envir = parent.frame())
 
   if (is.vector(theta))
     theta <- matrix(theta, nrow = length(theta))
