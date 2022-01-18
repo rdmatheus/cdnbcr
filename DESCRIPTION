@@ -27,4 +27,6 @@ Suggests:
 Config/testthat/edition: 3
 RoxygenNote: 7.1.2
 Imports: 
+    Formula (>= 1.2.4),
+    pracma (>= 2.3.3),
     survival (>= 3.2.13)
