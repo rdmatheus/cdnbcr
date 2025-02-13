@@ -1,8 +1,8 @@
 Package: cdnbcr
 Type: Package
 Title: An EM Algorithm for Estimation in the Correlated Destructive Negative Binomial Cure Rate Model
-Version: 0.0.0.9000
-Authors@R: c(person("Rodrigo", "De Medeiros",
+Version: 1.0.0
+Authors@R: c(person("Rodrigo", "M. R. de Medeiros",
                       email = "rodrigo.matheus@live.com",
                       role = c("aut", "cre"),
               comment = c(ORCID = "0000-0001-8101-3038")),
@@ -10,23 +10,25 @@ Authors@R: c(person("Rodrigo", "De Medeiros",
                       email = "diego.gallardo.mateluna@gmail.com",
                       role = c("aut"),
               comment = c(ORCID = "0000-0001-8184-7403")))
-Maintainer: Rodrigo M. R. de Medeiros <rodrigo.matheus@live.com>
-Description: An EM algorithm for maximum likelihood estimation in the correlated 
-    destructive negative binomial cure rate model. This model describes the time
-    until a specific event occurs (e.g., patient survival times). He assumes that
-    the occurrence of the event in the population is due to several competing
-    causes, which can be correlated. The model also deals with the possibility
-    of a fraction of individuals who are not susceptible to that event.
+Maintainer: Rodrigo M. R. de Medeiros <rodrigo.matheus@ufrn.br>
+Description: Description: Implements an Expectation-Maximization (EM) algorithm for maximum 
+    likelihood estimation in the Correlated Destructive Negative Binomial Cure 
+    Rate (CDNBCR) model. This model describes the time until a specific event 
+    occurs (e.g., patient survival times) while accounting for the presence 
+    of a cure fraction. It assumes that the event occurs due to multiple 
+    competing causes, which may be correlated.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rdmatheus/cdnbcr
 BugReports: https://github.com/rdmatheus/cdnbcr/issues
 Suggests: 
+    survival,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.2
 Imports: 
     Formula (>= 1.2.4),
-    pracma (>= 2.3.3),
-    survival (>= 3.2.13)
+    pracma (>= 2.3.3)
+Depends: 
+    R (>= 3.5)
