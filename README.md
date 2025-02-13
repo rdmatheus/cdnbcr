@@ -4,6 +4,8 @@
 # `cdnbcr`: Correlated Destructive Negative Binomial Cure Rate Model
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/rdmatheus/cdnbcr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/rdmatheus/cdnbcr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The `cdnbcr` package provides tools for modeling time-to-event data in

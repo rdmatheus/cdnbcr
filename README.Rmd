@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 # `cdnbcr`: Correlated Destructive Negative Binomial Cure Rate Model
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/rdmatheus/cdnbcr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/rdmatheus/cdnbcr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The `cdnbcr` package provides tools for modeling time-to-event data in the presence of a cure fraction, considering correlated competing risks. The Correlated Destructive Negative Binomial Cure Rate (CDNBCR) model describes the time until an event occurs while accounting for a cure fraction, assuming multiple initial competing causes with potential correlation. The model is destructive in the sense that some initial competing causes contributing to the occurrence of the event can be eliminated. Thus, the model is particularly useful in applications where interventions (e.g., treatments) may eliminate or inactivate some competing causes. Among the package's contributions, we implemented an Expectation-Maximization (EM) algorithm for maximum likelihood estimation of the model parameters and we provide diagnostic plots based on Cox-Snell residuals.
