@@ -8,7 +8,7 @@
 \method{predict}{cdnbcr}(
   object,
   newdata = NULL,
-  type = c("cure", "survival"),
+  type = c("survival", "cure"),
   na.action = stats::na.pass,
   ...
 )
@@ -21,8 +21,8 @@ with which to predict. If omitted, the fitted linear predictors are
 used.}
 
 \item{type}{The type of prediction required. The default is the
-fitted cure rate (\code{"cure"}). The alternative \code{"survival"}
-provides the fitted survival curve.}
+fitted survival function (\code{"survival"}). The alternative
+(\code{"cure"}) provides the fitted cure rate function.}
 
 \item{na.action}{function determining what should be done with missing
 values in \code{newdata}. The default is to predict \code{NA}.}

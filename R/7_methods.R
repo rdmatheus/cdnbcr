@@ -325,8 +325,8 @@ plot.cdnbcr <- function(x, which = 1:2,
 #'     with which to predict. If omitted, the fitted linear predictors are
 #'     used.
 #' @param type The type of prediction required. The default is the
-#'     fitted cure rate (\code{"cure"}). The alternative \code{"survival"}
-#'     provides the fitted survival curve.
+#'     fitted survival function (\code{"survival"}). The alternative
+#'     (\code{"cure"}) provides the fitted cure rate function.
 #' @param na.action function determining what should be done with missing
 #'     values in \code{newdata}. The default is to predict \code{NA}.
 #' @param ...  arguments passed to or from other methods.
@@ -335,11 +335,15 @@ plot.cdnbcr <- function(x, which = 1:2,
 #' @export
 #'
 predict.cdnbcr <- function(object, newdata = NULL,
-                           type = c("cure", "survival"),
+                           type = c("survival", "cure"),
                            na.action = stats::na.pass, ...)
 {
 
-  type <- match.arg(type, c("cure", "survival"))
+  mf <- stats::model.frame(object)
+  mt <- attr(mf, "terms")
+  xlevels <- stats::.getXlevels(mt, mf)
+
+  type <- match.arg(type, c("survival", "cure"))
 
   phi <- object$phi
   alpha <- if (is.null(object$alpha)) 0L else object$alpha
@@ -349,17 +353,20 @@ predict.cdnbcr <- function(object, newdata = NULL,
   theta.link <- object$links$theta.link
   p.link <- object$links$p.link
 
-  if(missing(newdata)) {
+  if(is.null(newdata)) {
 
+    time <- stats::model.response(stats::model.frame(object))[, 1]
     theta <- object$fitted$theta
     p <- object$fitted$p
 
   } else {
 
-    mf <- stats::model.frame(stats::delete.response(object$terms[["full"]]),
-                             newdata, na.action = na.action)
+    mf <- stats::model.frame(object$terms[["full"]], newdata,
+                             na.action = na.action, xlev = xlevels)
+
     newdata <- newdata[rownames(mf), , drop = FALSE]
 
+    time <- c(stats::model.response(mf)[, 1])
     Z1 <- stats::model.matrix(stats::delete.response(object$terms$theta), mf)
     Z2 <- stats::model.matrix(stats::delete.response(object$terms$p), mf)
 
@@ -369,13 +376,11 @@ predict.cdnbcr <- function(object, newdata = NULL,
   }
 
   rval <- switch(type,
-
                  "cure" = {
                    c(cure_rate(theta, phi, p, alpha))
                  },
                  "survival" = {
-                   t <- stats::model.response(stats::model.frame(object))[, 1]
-                   c(pcdnbcr(t, theta, phi, p, alpha, mu, sigma, lower.tail = FALSE))
+                   c(pcdnbcr(time, theta, phi, p, alpha, mu, sigma, lower.tail = FALSE))
                  })
 
   rval
