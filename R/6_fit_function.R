@@ -68,7 +68,35 @@
 #'   \item{x}{Model matrices, if \code{x = TRUE}.}
 #'  }
 #'
+#' @examples
+#'  \dontrun{
+#'   ## Loading survival package
+#'   library(survival)
 #'
+#'   ## Data (see ?e1690)
+#'   head(e1690)
+#'
+#'   ## Correlated destructive fit
+#'   fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+#'                 sex + trt + thickness + age, data = e1690)
+#'
+#'   summary(fit)
+#'
+#'   ## Cox-Snell residuals
+#'   par(mfrow = c(1, 2))
+#'   plot(fit, ask = FALSE)
+#'   par(mfrow = c(1, 1))
+#'
+#'   ## Latent variables
+#'   plot(fit$latent$M, ylab = "Initial competing causes", pch = 16, cex = 0.8)
+#'   plot(fit$latent$D, ylab = "Remaining competing causes", pch = 16, cex = 0.8)
+#'
+#'   ## Uncorrelated destructive fit (alpha = 0)
+#'   fit0 <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+#'                  sex + trt + thickness + age, alpha = FALSE, data = e1690)
+#'
+#'   summary(fit0)
+#'  }
 #' @export
 #' @author Diego I. Gallardo \email{diego.gallardo.mateluna@gmail.com}
 #' @author Rodrigo M. R. de Medeiros \email{rodrigo.matheus@ufrn.br}

@@ -98,6 +98,36 @@ specifies a CDNBCR model with two regression structures, one for \code{theta} in
 explanatory variables \code{x1} and \code{x2} and another for \code{p} in terms of the explanatory
 variables \code{z1} and \code{z2}.
 }
+\examples{
+ \dontrun{
+  ## Loading survival package
+  library(survival)
+
+  ## Data (see ?e1690)
+  head(e1690)
+
+  ## Correlated destructive fit
+  fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+                sex + trt + thickness + age, data = e1690)
+
+  summary(fit)
+
+  ## Cox-Snell residuals
+  par(mfrow = c(1, 2))
+  plot(fit, ask = FALSE)
+  par(mfrow = c(1, 1))
+
+  ## Latent variables
+  plot(fit$latent$M, ylab = "Initial competing causes", pch = 16, cex = 0.8)
+  plot(fit$latent$D, ylab = "Remaining competing causes", pch = 16, cex = 0.8)
+
+  ## Uncorrelated destructive fit (alpha = 0)
+  fit0 <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+                 sex + trt + thickness + age, alpha = FALSE, data = e1690)
+
+  summary(fit0)
+ }
+}
 \author{
 Diego I. Gallardo \email{diego.gallardo.mateluna@gmail.com}
 
