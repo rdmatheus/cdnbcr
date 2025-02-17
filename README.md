@@ -164,6 +164,62 @@ plot(fit, ask = FALSE)
 par(mfrow = c(1, 1))
 ```
 
+By default, the `predict()` function returns the fitted survival time or
+the fitted cure rate for the data that has been observed. If new
+individuals are added to the sample, the survival function and cure rate
+can also be estimated with the `predict()` function. See the example
+below
+
+``` r
+## Without new data
+
+### Fitted survival time and cure rate for the first six individuals observed
+### in the sample:
+
+## survival time
+head(predict(fit)) 
+#> [1] 0.9259642 0.6336889 0.4005808 0.3724165 0.6182234 0.6510059
+
+## cure rate
+head(predict(fit, type = "cure")) 
+#> [1] 0.4653518 0.6262950 0.3966662 0.3064086 0.6150670 0.6463697
+
+## Fitted survival time and cure rate with new data:
+newdata <- data.frame(trt = "Control", time = 5, status = 1, age = 50,
+                      sex = "Male", thickness = 3,
+                      nodeII = 0, nodeIII = 0, nodeIV = 1)
+
+## survival time
+head(predict(fit, newdata = newdata))
+#> [1] 0.311067
+
+## cure rate
+head(predict(fit, newdata = newdata, type = "cure")) 
+#> [1] 0.2930762
+```
+
+The use of the EM algorithm also makes it possible to extract latent
+variables underlying the definition of the destructive model, such as
+the number of initial competing causes for the occurrence of the event
+(called “M”) and the remaining causes that were not destroyed (called
+“D”). These variables are made available in the `"cdnbcr"` object. See
+below.
+
+``` r
+M <- fit$latent$M
+plot(M, ylab = "Initial competing causes", pch = 16, cex = 0.8)
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="80%" style="display: block; margin: auto;" />
+
+``` r
+
+D <- fit$latent$D
+plot(D, ylab = "Remaining competing causes", pch = 16, cex = 0.8)
+```
+
+<img src="man/figures/README-unnamed-chunk-7-2.png" width="80%" style="display: block; margin: auto;" />
+
 #### Uncorrelated destructive fit (alpha = 0)
 
 The parameter $\alpha$ describes the dependence of the CDNBCR model. An
