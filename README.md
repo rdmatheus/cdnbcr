@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/rdmatheus/cdnbcr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/rdmatheus/cdnbcr/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/rdmatheus/cdnbcr/graph/badge.svg)](https://app.codecov.io/gh/rdmatheus/cdnbcr)
 <!-- badges: end -->
 
 The `cdnbcr` package provides tools for modeling time-to-event data in
