@@ -45,22 +45,8 @@ test_that("dcdnbcr works", {
                                                                            dcdnbcr(x[2,2], theta[2,2], phi, p[2,2], alpha, mu, sigma),
                                                                            dcdnbcr(x[3,2], theta[3,2], phi, p[3,2], alpha, mu, sigma)), ncol = 2)), 0)
 
-  mu <- matrix(stats::runif(6, 0, 5), ncol = 2)
-  expect_equal(sum(dcdnbcr(x, theta, phi, p, alpha, mu, sigma) -  matrix(c(dcdnbcr(x[1,1], theta[1,1], phi, p[1,1], alpha, mu[1,1], sigma),
-                                                                           dcdnbcr(x[2,1], theta[2,1], phi, p[2,1], alpha, mu[2,1], sigma),
-                                                                           dcdnbcr(x[3,1], theta[3,1], phi, p[3,1], alpha, mu[3,1], sigma),
-                                                                           dcdnbcr(x[1,2], theta[1,2], phi, p[1,2], alpha, mu[1,2], sigma),
-                                                                           dcdnbcr(x[2,2], theta[2,2], phi, p[2,2], alpha, mu[2,2], sigma),
-                                                                           dcdnbcr(x[3,2], theta[3,2], phi, p[3,2], alpha, mu[3,2], sigma)), ncol = 2)), 0)
-
-
-  # Inconsistent arguments and vectorization
-  # expect_error(dcdnbcr(x, c(2, 3, 4, 5), phi, p, alpha, mu, sigma))
-  # expect_error(dcdnbcr(x, theta, phi, c(0.2, 0.3, 0.4, 0.5), alpha, mu, sigma))
-  # expect_error(dcdnbcr(x, theta, phi, p, alpha, c(2, 3, 4, 5), sigma))
-
   theta[1, 2] <- -2
-  mu[2, 1] <- -2
+  theta[2, 1] <- -2
   p[1, 1] <- -1
   p[2, 2] <- 2
   expect_equal(sum(is.nan(dcdnbcr(x, theta, phi, p, alpha, mu, sigma))), 4)
@@ -124,22 +110,9 @@ test_that("pcdnbcr works", {
                                                                            pcdnbcr(x[2,2], theta[2,2], phi, p[2,2], alpha, mu, sigma),
                                                                            pcdnbcr(x[3,2], theta[3,2], phi, p[3,2], alpha, mu, sigma)), ncol = 2)), 0)
 
-  mu <- matrix(stats::runif(6, 0, 5), ncol = 2)
-  expect_equal(sum(pcdnbcr(x, theta, phi, p, alpha, mu, sigma) -  matrix(c(pcdnbcr(x[1,1], theta[1,1], phi, p[1,1], alpha, mu[1,1], sigma),
-                                                                           pcdnbcr(x[2,1], theta[2,1], phi, p[2,1], alpha, mu[2,1], sigma),
-                                                                           pcdnbcr(x[3,1], theta[3,1], phi, p[3,1], alpha, mu[3,1], sigma),
-                                                                           pcdnbcr(x[1,2], theta[1,2], phi, p[1,2], alpha, mu[1,2], sigma),
-                                                                           pcdnbcr(x[2,2], theta[2,2], phi, p[2,2], alpha, mu[2,2], sigma),
-                                                                           pcdnbcr(x[3,2], theta[3,2], phi, p[3,2], alpha, mu[3,2], sigma)), ncol = 2)), 0)
-
-
-  # Inconsistent arguments and vectorization
-  # expect_error(dcdnbcr(x, c(2, 3, 4, 5), phi, p, alpha, mu, sigma))
-  # expect_error(dcdnbcr(x, theta, phi, c(0.2, 0.3, 0.4, 0.5), alpha, mu, sigma))
-  # expect_error(dcdnbcr(x, theta, phi, p, alpha, c(2, 3, 4, 5), sigma))
 
   theta[1, 2] <- -2
-  mu[2, 1] <- -2
+  theta[2, 1] <- -2
   p[1, 1] <- -1
   p[2, 2] <- 2
   expect_equal(sum(is.nan(pcdnbcr(x, theta, phi, p, alpha, mu, sigma))), 4)

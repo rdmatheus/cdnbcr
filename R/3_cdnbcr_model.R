@@ -184,7 +184,7 @@ pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p
   d <- dim(q)[2]
 
   if(all(q < 0) | all(theta < 0) | phi < 0 | all(p < 0) | all(p > 1) |
-     alpha < 0 | alpha > 1 | all(mu < 0) | sigma < 0) return(NaN)
+     alpha < 0 | alpha > 1 | mu < 0 | sigma < 0) return(NaN)
 
   ## Parameter indexation
   theta <- matrix(theta, ncol = d)
