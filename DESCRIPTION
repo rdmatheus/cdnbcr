@@ -2,7 +2,7 @@ Package: cdnbcr
 Type: Package
 Title: An EM Algorithm for Estimation in the Correlated Destructive Negative Binomial Cure Rate Model
 Version: 1.1.0
-Authors@R: c(person("Rodrigo", "Medeiros",
+Authors@R: c(person("Rodrigo", " M. R. de Medeiros",
           email = "rodrigo.matheus@ufrn.br",
           role = c("aut", "cre", "cph"),
           comment = c(ORCID = "0000-0001-8101-3038")),
