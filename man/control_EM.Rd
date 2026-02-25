@@ -2,12 +2,13 @@
 % Please edit documentation in R/5_EM_algorithm.R
 \name{control_EM}
 \alias{control_EM}
-\title{Control Parameters for the EM Algorithm}
+\title{Auxiliary for Controlling a CDNBCR Fit via EM Algorithm}
 \usage{
 control_EM(method = "BFGS", maxit = 10000, start = NULL, prec = 5e-05, ...)
 }
 \arguments{
-\item{method}{Optimization method for the "M" steps. The default method is \code{"BFGS"}.}
+\item{method}{Optimization method for the "M" steps, specifying the \code{method} argument
+passed to \code{\link[stats]{optim}}.}
 
 \item{maxit}{Maximum number of EM algorithm iterations. The default is \code{10.000} iterations.
 If this limit is reached, a warning message is displayed.}
@@ -22,11 +23,41 @@ are vectors of coefficients associated with the regression structures of
 \item{...}{Additional arguments passed to \code{\link[stats]{optim}}.}
 }
 \value{
-A list containing the specified control parameters.
+A list with components named as the arguments.
 }
 \description{
-A list of control parameters for the Expectation-Maximization (EM) algorithm used in the
-    estimation of the Correlated Destructive Negative Binomial Cure Rate Model.
+Optimization parameters that control the fitting of the correlated destructive negative
+    binomial cure rate model (CDNBCR) via Expectation-Maximization (EM) algorithm.
+}
+\examples{
+\donttest{## Loading the survival package
+library(survival)
+
+## Dataset:  (see ?e1690)
+head(e1690)
+
+## Correlated destructive fit (default fit)
+fit1 <- cdnbcr(Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+                trt + thickness, data = e1690)
+
+## Changing the initial values
+beta1 <- c(1, 1.5, 2)
+phi <- 2
+beta2 <- c(0.5, -0.5, 0.5)
+alpha <- 0.5
+mu <- 3
+sigma <- 2
+
+fit2 <- cdnbcr(Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+                trt + thickness, data = e1690,
+               start = c(beta1, phi, beta2, alpha, mu, sigma))
+
+## Compare the fits:
+fit1
+fit2}
+}
+\seealso{
+\code{\link{cdnbcr}} for parameter estimation in the CDNBCR model via EM algorithm.
 }
 \author{
 Rodrigo M. R. de Medeiros <\email{rodrigo.matheus@ufrn.br}>

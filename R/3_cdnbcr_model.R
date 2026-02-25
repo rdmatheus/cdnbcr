@@ -38,57 +38,55 @@ rcbern <- function(n, p, alpha){
 }
 
 # cdnbcr model =================================================================
-#' @name cdnbcr_model
+#' @name cdnbcr-model
 #'
 #' @title The Correlated Destructive Negative Binomial Cure Rate Model
 #'
-#' @description Implements functions for the Correlated Destructive Negative Binomial Cure Rate (CDNBCR) model,
-#'     including probability density, cumulative distribution, cure rate, and random generation.
+#' @description Provides the main distributional components of the correlated destructive negative binomial cure rate (CDNBCR) model,
+#'     including the probability density function, cumulative distribution function, cure fraction,
+#'     and random number generation.
 #'
-#' @param x Vector of positive event times or quantiles.
+#' @param x Vector of positive event times.
 #' @param q Vector of quantiles.
-#' @param n Number of random values to return.
-#' @param theta,phi Positive parameters associated with the expected initial number of competing
+#' @param n Number of random values to generate.
+#' @param theta,phi Positive parameters related to the expected initial number of competing
 #'     causes and their dispersion.
-#' @param p,alpha Parameters controlling the probability of a cause remaining active. The correlation
-#'     among active causes is determined by \code{alpha}. Both \code{p} and
-#'     \code{alpha} are restricted to the closed unit interval \code{[0, 1]}.
-#'     When \code{alpha = 0}, the activations are assumed to be independent.
-#' @param mu,sigma Strictly positive parameters of the Weibull survival distribution assumed for the
+#' @param p,alpha Parameters controlling the probability that a cause remains active. The dependence
+#'     among active causes is governed by \code{alpha}. Both \code{p} and \code{alpha} are restricted
+#'     to the closed unit interval \code{[0, 1]}. When \code{alpha = 0}, activations are assumed to be independent.
+#' @param mu,sigma Strictly positive parameters of the Weibull distribution assumed for the
 #'     time-to-event of active competing causes.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are
-#'     \code{P(X <= x)}, otherwise, \code{P(X > x)}.
-#' @param log.p Logical; if \code{TRUE}, probabilities \code{p} are given as
-#'     \code{log(p)}.
+#'     \code{P(X <= x)}; otherwise, \code{P(X > x)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities \code{p} are returned as \code{log(p)}.
 #'
-#' @return \code{dcdnbcr} returns the probability density function, \code{pcdnbcr} gives the
-#'     distribution function, \code{cure_rate} returns the cure rate of the model, and \code{rcdnbcr}
-#'     generates random observations.
-#'
+#' @return \code{dcdnbcr} returns the probability density function, \code{pcdnbcr} returns the
+#'     distribution function, \code{cure_rate} returns the cure fraction of the model, and
+#'     \code{rcdnbcr} generates random observations.
 #'
 #' @details
-#' The CDNBCR model describes the time until an event occurs while accounting for a cure fraction,
-#'     assuming multiple initial competing causes with potential correlation. The model is
-#'     destructive in the sense that some initial competing causes contributing to the occurrence
-#'     of the event can be eliminated. Thus, the model is particularly useful in applications
-#'     where interventions (e.g., treatments) may eliminate or inactivate some competing causes.
+#' The CDNBCR model describes the time until the occurrence of an event while accounting for a cure fraction,
+#'     assuming multiple initial competing causes with possible dependence. The model is termed
+#'     \emph{destructive} because some of the initial competing causes contributing to the occurrence
+#'     of the event may be eliminated or inactivated. This formulation is particularly useful in applications
+#'     where interventions (e.g., treatments) may remove or deactivate some competing causes.
 #'
-#'     We assume that the number of initial competing causes is described by a negative binomial
-#'     random variable with mean \code{theta} and variance \code{theta * (1 + phi * theta)}. Each of
-#'     the initial competing causes may remain contributing to the occurrence of the event with
-#'     probability \code{p}. The model introduces dependence on the destruction or not of these
-#'     initial causes, controlled by the parameter \code{alpha}. Finally, let \eqn{Y_j} be the
-#'     survival time due to the \eqn{j}th remaining competing cause, \eqn{j = 1, \ldots, D},
-#'     where \eqn{D} is a latent random variable. We assume that \eqn{Y_j} follows a Weibull distribution
-#'     with mean \code{mu} and variance \code{mu^2 * (Gamma(2/sigma + 1) / Gamma(1/sigma + 1)^2 - 1)}.
-#'     The observed uncensored survival time is given by \eqn{T = \textrm{min}(Y_1, \ldots, Y_D)}.
+#'     The number of initial competing causes is modeled by a negative binomial random variable
+#'     with mean \code{theta} and variance \code{theta * (1 + phi * theta)}. Each initial competing cause
+#'     remains active with probability \code{p}. Dependence in the activation mechanism is introduced
+#'     through the parameter \code{alpha}. Let \eqn{Y_j} denote the survival time associated with the
+#'     \eqn{j}th remaining competing cause, \eqn{j = 1, \ldots, D}, where \eqn{D} is a latent random variable.
+#'     We assume that \eqn{Y_j} follows a Weibull distribution with mean \code{mu} and variance
+#'     \code{mu^2 * (Gamma(2/sigma + 1) / Gamma(1/sigma + 1)^2 - 1)}.
+#'     The observed uncensored survival time is given by \eqn{T = \min(Y_1, \ldots, Y_D)}.
 #'
-#'
-#' @author Rodrigo M. R. de Medeiros <\email{rodrigo.matheus@ufrn.br}>
 #' @author Diego I. Gallardo <\email{diego.gallardo.mateluna@gmail.com}>
+#' @author Rodrigo M. R. de Medeiros <\email{rodrigo.matheus@ufrn.br}>
+#'
+#' @seealso
+#' \code{\link{cdnbcr}} for parameter estimation in the CDNBCR model.
 #'
 #' @examples
-#'
 #' # Parameters
 #' theta <- 1.5
 #' phi <- 1.2
@@ -113,8 +111,8 @@ rcbern <- function(n, p, alpha){
 #' points(Cens, mean(1 - delta), pch = 16, col = 2, lwd = 2)
 #'
 #' # Survival function
-#' plot(survival::survfit(survival::Surv(tobs, delta) ~ 1, se.fit = FALSE), xlab = expression(T[obs]),
-#'      ylab = "Survival function")
+#' plot(survival::survfit(survival::Surv(tobs, delta) ~ 1, se.fit = FALSE),
+#'      xlab = expression(T[obs]), ylab = "Survival function")
 #' curve(1 - pcdnbcr(x, theta, phi, p, alpha, mu, sigma), add = TRUE, col = 2, lwd = 2)
 #'
 #' # Cure rate
@@ -124,7 +122,7 @@ rcbern <- function(n, p, alpha){
 #' par(mfrow = op)
 
 ## Probability density function ------------------------------------------------
-#' @rdname cdnbcr_model
+#' @rdname cdnbcr-model
 #' @export
 dcdnbcr <- function(x, theta, phi, p, alpha, mu, sigma, log.p = FALSE){
 
@@ -167,7 +165,7 @@ dcdnbcr <- function(x, theta, phi, p, alpha, mu, sigma, log.p = FALSE){
 }
 
 ## Cumulative distribution function --------------------------------------------
-#' @rdname cdnbcr_model
+#' @rdname cdnbcr-model
 #' @export
 pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p = FALSE){
 
@@ -210,7 +208,7 @@ pcdnbcr <- function(q, theta, phi, p, alpha, mu, sigma, lower.tail = TRUE, log.p
 }
 
 ## Random generation -----------------------------------------------------------
-#' @rdname cdnbcr_model
+#' @rdname cdnbcr-model
 #' @export
 rcdnbcr <- function(n, theta, phi, p, alpha, mu, sigma){
 
@@ -230,7 +228,7 @@ rcdnbcr <- function(n, theta, phi, p, alpha, mu, sigma){
 }
 
 ## Cure rate -------------------------------------------------------------------
-#' @rdname cdnbcr_model
+#' @rdname cdnbcr-model
 #' @export
 cure_rate <- function(theta, phi, p, alpha){
 

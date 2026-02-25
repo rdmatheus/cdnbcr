@@ -4,32 +4,26 @@
 \alias{cdnbcr-methods}
 \alias{model.frame.cdnbcr}
 \alias{model.matrix.cdnbcr}
-\alias{print.cdnbcr}
-\alias{summary.cdnbcr}
-\alias{print.summary.cdnbcr}
 \alias{coef.cdnbcr}
+\alias{vcov.cdnbcr}
+\alias{residuals.cdnbcr}
 \alias{logLik.cdnbcr}
 \alias{AIC.cdnbcr}
-\alias{vcov.cdnbcr}
-\title{Methods for "cdnbcr" objects}
+\title{Extract Information From a CDNBCR Fit}
 \usage{
 \method{model.frame}{cdnbcr}(formula, ...)
 
-\method{model.matrix}{cdnbcr}(object, submodel = c("theta", "p"), ...)
+\method{model.matrix}{cdnbcr}(object, parm = c("full", "theta", "p"), ...)
 
-\method{print}{cdnbcr}(x, digits = getOption("digits"), ...)
+\method{coef}{cdnbcr}(object, parm = c("full", "theta", "p"), ...)
 
-\method{summary}{cdnbcr}(object, ...)
+\method{vcov}{cdnbcr}(object, parm = c("full", "theta", "p"), ...)
 
-\method{print}{summary.cdnbcr}(x, digits = getOption("digits"), ...)
-
-\method{coef}{cdnbcr}(object, submodel = c("full", "theta", "p"), ...)
+\method{residuals}{cdnbcr}(object, ...)
 
 \method{logLik}{cdnbcr}(object, ...)
 
 \method{AIC}{cdnbcr}(object, ..., k = 2)
-
-\method{vcov}{cdnbcr}(object, submodel = c("full", "theta", "p"), ...)
 }
 \arguments{
 \item{formula}{A model \code{\link[Formula]{Formula}} or \code{\link[stats]{terms}} object or an
@@ -37,19 +31,88 @@
 
 \item{...}{Additional arguments passed to or from other methods.}
 
-\item{submodel}{Specifies which part of the model should be used. Options:
-\code{"full"} (default) for all parameters, \code{"theta"} for the regression submodel of
-\code{theta}, and \code{"p"} for the regression submodel of\code{p}.}
+\item{object}{An object of class \code{"cdnbcr"}.}
 
-\item{x, object}{An object of class \code{"cdnbcr"}.}
-
-\item{digits}{Minimal number of significant digits, see \code{\link[base]{print.default}}.}
+\item{parm}{A character indicating which regression structure should be used. It can be
+\code{"theta"} for the expected initial competing causes regression structure,
+\code{"p"} for the activation probability of an initial competing cause regression
+submodel, or \code{"full"} for both regression structures.}
 
 \item{k}{Numeric, the penalty per parameter to be used; the default
 \code{k = 2} is the classical AIC. See \code{\link[stats]{AIC}}.}
 }
+\value{
+\itemize{
+\item \code{model.frame} returns a \code{data.frame} containing the variables required
+    by \code{formula} and any additional arguments provided via \code{...}.
+\item \code{model.matrix} returns the design matrix used in the regression structure,
+    as specified by the \code{parm} argument.
+\item \code{coef} returns a numeric vector of estimated regression coefficients, based
+    on the \code{parm} argument. If \code{parm = "full"}, it returns a list with the
+    components \code{"theta"} and \code{"p"}, each containing the corresponding
+    coefficient estimates.
+\item \code{vcov} returns the asymptotic covariance matrix of the regression coefficients,
+    based on the \code{parm} argument.
+\item \code{residuals} returnas a \code{"\link[survival]{Surv}"} object with the Cox-Snell residuals
+    (Cox and Snell, 1968). If the model is well fitted to the data, the Cox-Snell residuals are
+     expected to be distributed as a censored random sample from the exponential distribution
+      with mean 1.
+\item \code{logLik} returns the log-likelihood value of the fitted model.
+\item \code{AIC} returns a numeric value representing the Akaike Information Criterion
+    (AIC), Bayesian Information Criterion, or another criterion, depending on \code{k}.
+}
+}
 \description{
-Methods for "cdnbcr" objects
+Methods for \code{"cdnbcr"} objects.
+}
+\examples{
+\donttest{## Loading survival package
+library(survival)
+
+## Dataset: e1690 (see ?e1690)
+head(e1690)
+
+## Correlated destructive fit
+fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+                sex + trt + thickness + age, data = e1690)
+
+# Model frame
+mf <- model.frame(fit)
+mf
+
+# Model matrices
+model.matrix(fit, parm = "theta")
+model.matrix(fit, parm = "p")
+
+# Coef
+coef(fit)
+coef(fit, parm = "theta")
+coef(fit, parm = "p")
+
+# vcov
+vcov(fit)
+vcov(fit, parm = "theta")
+vcov(fit, parm = "p")
+
+# residuals
+residuals(fit)
+
+# Log-likelihood value
+logLik(fit)
+
+# AIC and BIC
+AIC(fit)
+AIC(fit, k = log(fit$nobs))}
+}
+\references{
+Cox, D. R., and Snell, E. J. (1968). A general definition of residuals.
+    \emph{Journal of the Royal Statistical Society B}, \bold{30}, 248--265.
+
+De Medeiros, R. M. R., Bourguignon, M., Gómez, Y. M., and Gallardo, D. I. (2026).
+    A correlated approach to cancer cell counting in cure rate models.
+
+Rodrigues, J., De Castro, M., Balakrishnan, N., and Cancho, V. G. (2011).
+    Destructive weighted Poisson cure rate models. \emph{Lifetime Data Analysis}, \bold{17}, 333--346
 }
 \author{
 Rodrigo M. R. de Medeiros <\email{rodrigo.matheus@ufrn.br}>

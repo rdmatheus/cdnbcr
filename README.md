@@ -91,7 +91,8 @@ currently available for the `"cdnbcr"` class are presented below.
 ``` r
 methods(class = "cdnbcr")
 #>  [1] AIC          coef         logLik       model.frame  model.matrix
-#>  [6] plot         predict      print        summary      vcov        
+#>  [6] plot         predict      print        residuals    summary     
+#> [11] vcov        
 #> see '?methods' for accessing help and source code
 ```
 
@@ -102,22 +103,22 @@ fit
 #> cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 
 #>     1 | sex + trt + thickness + age, data = e1690)
 #> 
-#> theta submodel with log link function:
+#> Regression model for theta (log link):
 #>   nodeII  nodeIII   nodeIV 
 #> 1.100414 1.592870 2.418928 
 #> 
-#> p submodel with logit link function:
+#> Regression model for p (logit link):
 #>     (Intercept)       sexFemale trtChemotherapy       thickness             age 
 #>      -0.8283426      -1.9336639       0.5597650       0.4299035       0.0533924 
 #> 
-#> Additional model parameter estimates:
-#>        phi     alpha       mu    sigma
-#>   2.598226 0.9781685 3.394487 2.287898
+#> Dispersion, dependence, and baseline parameters:
+#>       phi     alpha       mu    sigma
+#>  2.598226 0.9781685 3.394487 2.287898
 #> 
 #> ---
-#> Log-lik value: -502.7273 
-#> AIC: 1029.455 and BIC: 1077.852 
-#> EM iterations: 951
+#> Log-likelihood: -502.7273
+#> AIC: 1029.455   BIC: 1077.852
+#> Number of EM iterations:
 
 ## summary
 summary(fit)
@@ -126,10 +127,10 @@ summary(fit)
 #>     1 | sex + trt + thickness + age, data = e1690)
 #> 
 #> Summary for residuals:
-#>        Mean Std. dev.  Skewness Kurtosis
-#>   0.4429988 0.2731638 0.7159255 3.309368
+#>       Min        1Q    Median        3Q       Max 
+#> 0.0000000 0.0000000 0.3721069 0.9213613 1.2807131 
 #> 
-#> theta submodel with log link function:
+#> Regression model for theta (log link):
 #>         Estimate Std. error t value Pr(>|t|)    
 #> nodeII   1.10041    0.44635  2.4654 0.013687 *  
 #> nodeIII  1.59287    0.54042  2.9475 0.003204 ** 
@@ -137,7 +138,7 @@ summary(fit)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> p submodel with logit link function:
+#> Regression model for p (logit link):
 #>                  Estimate Std. error t value Pr(>|t|)
 #> (Intercept)     -0.828343   1.679746 -0.4931   0.6219
 #> sexFemale       -1.933664   1.299001 -1.4886   0.1366
@@ -145,7 +146,7 @@ summary(fit)
 #> thickness        0.429904   0.363671  1.1821   0.2372
 #> age              0.053392   0.033935  1.5734   0.1156
 #> 
-#> Additional model parameters:
+#> Dispersion, dependence, and baseline parameters:
 #>                  phi     alpha        mu     sigma
 #> Estimate   2.5982261 0.9781685 3.3944872 2.2878976
 #> Std. error 0.7441392 0.0594861 0.3503527 0.2204368
@@ -153,7 +154,7 @@ summary(fit)
 #> ---
 #> Log-lik value: -502.7273 
 #> AIC: 1029.455 and BIC: 1077.852 
-#> EM iterations: 951
+#> EM iterations:
 
 ## plot
 par(mfrow = c(1, 2))
@@ -173,31 +174,46 @@ can also be estimated with the `predict()` function. See the example
 below
 
 ``` r
-## Without new data
+## Suppose we are interested in obtaining predictions for the following individuals:
+newdata <- data.frame(trt = factor(c("Control", "Control", "Chemotherapy", "Chemotherapy")),
+                     age = median(e1690$age),
+                     sex = factor(c("Male", "Female", "Male", "Female")),
+                     thickness = median(e1690$thickness),
+                     nodeII = c(0, 0, 0, 0),
+                     nodeIII = c(0, 0, 0, 0),
+                     nodeIV = c(1, 1, 1, 1))
+newdata
+#>            trt     age    sex thickness nodeII nodeIII nodeIV
+#> 1      Control 47.1075   Male       3.1      0       0      1
+#> 2      Control 47.1075 Female       3.1      0       0      1
+#> 3 Chemotherapy 47.1075   Male       3.1      0       0      1
+#> 4 Chemotherapy 47.1075 Female       3.1      0       0      1
 
-### Fitted survival time and cure rate for the first six individuals observed
-### in the sample:
+## Fitted survival curves
+pred <- predict(fit, newdata)
+plot(pred[1, ], type = "l", ylim = c(0, 1), xlab = "Time", ylab = "Survival")
+lines(pred[2, ], col = 2, lty = 2)
+lines(pred[3, ], col = 3, lty = 3)
+lines(pred[4, ], col = 4, lty = 4)
+legend("topright", legend = c("trt: Control, sex: Male",
+                             "trt: Control, sex: Female",
+                             "trt: Chemotherapy, sex: Male",
+                             "trt: Chemotherapy, sex: Female"),
+      col = 1:4, lty = 1:4)
+```
 
-## survival time
-head(predict(fit)) 
-#> [1] 0.9259642 0.6336889 0.4005808 0.3724165 0.6182234 0.6510059
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="80%" style="display: block; margin: auto;" />
 
-## cure rate
-head(predict(fit, type = "cure")) 
-#> [1] 0.4653518 0.6262950 0.3966662 0.3064086 0.6150670 0.6463697
-
-## Fitted survival time and cure rate with new data:
-newdata <- data.frame(trt = "Control", time = 5, status = 1, age = 50,
-                      sex = "Male", thickness = 3,
-                      nodeII = 0, nodeIII = 0, nodeIV = 1)
-
-## survival time
-head(predict(fit, newdata = newdata))
-#> [1] 0.311067
-
-## cure rate
-head(predict(fit, newdata = newdata, type = "cure")) 
-#> [1] 0.2930762
+``` r
+## Predicted cure rates
+predict(fit, newdata, type = "cure")
+#> [1] 0.2957616 0.4190912 0.2847148 0.3633011
+## Predicted expected number of initial competing causes
+predict(fit, newdata, type = "theta")
+#> [1] 11.23381 11.23381 11.23381 11.23381
+## Predicted activation probability of an initial competing cause
+predict(fit, newdata, type = "p")
+#> [1] 0.9534491 0.7476045 0.9728620 0.8383012
 ```
 
 The use of the EM algorithm also makes it possible to extract latent
@@ -240,10 +256,10 @@ summary(fit0)
 #>     1 | sex + trt + thickness + age, data = e1690, alpha = FALSE)
 #> 
 #> Summary for residuals:
-#>        Mean Std. dev.  Skewness Kurtosis
-#>   0.4413312 0.2732463 0.7080552 3.197274
+#>       Min        1Q    Median        3Q       Max 
+#> 0.0000000 0.0000000 0.3738455 0.9595133 1.2372406 
 #> 
-#> theta submodel with log link function:
+#> Regression model for theta (log link):
 #>         Estimate Std. error t value Pr(>|t|)    
 #> nodeII   0.98674    0.43676  2.2592 0.023869 *  
 #> nodeIII  1.50469    0.54006  2.7861 0.005334 ** 
@@ -251,7 +267,7 @@ summary(fit0)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
-#> p submodel with logit link function:
+#> Regression model for p (logit link):
 #>                  Estimate Std. error t value Pr(>|t|)
 #> (Intercept)     -1.482456   1.389650 -1.0668   0.2861
 #> sexFemale       -0.675326   0.856211 -0.7887   0.4303
@@ -259,7 +275,7 @@ summary(fit0)
 #> thickness        0.187150   0.208348  0.8983   0.3690
 #> age              0.045449   0.037213  1.2213   0.2220
 #> 
-#> Additional model parameters:
+#> Dispersion, dependence, and baseline parameters:
 #>                 phi        mu     sigma
 #> Estimate   2.565274 3.1279706 2.1749280
 #> Std. error 1.008614 0.3881323 0.2319883
@@ -267,5 +283,5 @@ summary(fit0)
 #> ---
 #> Log-lik value: -505.0737 
 #> AIC: 1032.147 and BIC: 1076.511 
-#> EM iterations: 1090
+#> EM iterations:
 ```

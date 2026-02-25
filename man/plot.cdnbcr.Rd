@@ -2,35 +2,73 @@
 % Please edit documentation in R/7_methods.R
 \name{plot.cdnbcr}
 \alias{plot.cdnbcr}
-\title{Diagnostic Plots for the Correlated Destructive Negative Binomial Cure Rate
-    Model}
+\title{Diagnostic Plots for the CDNBCR Model}
 \usage{
 \method{plot}{cdnbcr}(
   x,
   which = 1:2,
   ask = prod(graphics::par("mfcol")) < length(which) && grDevices::dev.interactive(),
+  col.lines = c("black", "#56B4E9"),
+  lwd = 2,
+  pch = 16,
+  cex = 0.8,
   ...
 )
 }
 \arguments{
-\item{x}{An object of class \code{cdnbcr}.}
+\item{x}{An object of class \code{"cdnbcr"}, a result of a call to \code{\link{cdnbcr}}.}
 
-\item{which}{numeric; if a subset of the plots is required, specify a subset
+\item{which}{Numeric; if a subset of the plots is required, specify a subset
 of the numbers \code{1:2}.}
 
-\item{ask}{logical; if \code{TRUE}, the user is asked before each plot.}
+\item{ask}{Logical; if \code{TRUE}, the user is asked before each plot.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{col.lines}{A vector with dimension two with the color for empirical and expected lines.}
+
+\item{pch, cex, lwd, ...}{Graphical parameters (see \code{\link[graphics]{par}}).}
 }
 \description{
-Produces diagnostic plots to assess the goodness-of-fit of a Correlated Destructive Negative
+Produces two diagnostic plots to assess the goodness-of-fit of a Correlated Destructive Negative
     Binomial Cure Rate model fit based on the Cox-Snell residuals. Available plots include the
     Kaplan-Meier estimate and the cumulative hazard plot.
 }
 \details{
 The function produces two diagnostic plots for assessing model fit:
-(1) The Kaplan-Meier estimate for Cox-Snell residuals, compared to the expected
-    survival function of an exponential distribution with mean 1; and
-(2) The cumulative hazard function against the Cox-Snell residuals, which
-    should align approximately with the identity line if the model is well-fitted.
+\itemize{
+   \item{The Kaplan-Meier estimate for Cox-Snell residuals, compared to the
+    expected survival function of an exponential distribution with mean 1;}
+   \item{The cumulative hazard function against the Cox-Snell residuals, which
+    should align approximately with the identity line if the model is well-fitted.}
+}
+}
+\examples{
+\donttest{## Loading survival package
+library(survival)
+
+## Dataset: e1690 (see ?e1690)
+head(e1690)
+
+## Correlated destructive fit
+fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+              sex + trt + thickness + age, data = e1690)
+
+## Plot of the Cox-Snell residuals
+par(mfrow = c(1, 2))
+plot(fit, ask = FALSE)
+par(mfrow = c(1, 1))}
+}
+\references{
+Cox, D. R., and Snell, E. J. (1968). A general definition of residuals.
+    \emph{Journal of the Royal Statistical Society B}, \bold{30}, 248--265.
+
+De Medeiros, R. M. R., Bourguignon, M., Gómez, Y. M., and Gallardo, D. I. (2026).
+    A correlated approach to cancer cell counting in cure rate models.
+
+Rodrigues, J., De Castro, M., Balakrishnan, N., and Cancho, V. G. (2011).
+    Destructive weighted Poisson cure rate models. \emph{Lifetime Data Analysis}, \bold{17}, 333--346
+}
+\author{
+Diego I. Gallardo <\email{diego.gallardo.mateluna@gmail.com}>
+
+Rodrigo M. R. de Medeiros <\email{rodrigo.matheus@ufrn.br}>
 }

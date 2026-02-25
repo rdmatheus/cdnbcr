@@ -1,8 +1,8 @@
 test_that("rDNB under negative parameter information", {
 
-  expect_equal(sum(is.nan(rDNB(100, stats::runif(1, -5, 0), stats::runif(1, 0, 5)))), 100)
-  expect_equal(sum(is.nan(rDNB(100, stats::runif(1, 0, 5), stats::runif(1, -5, 0)))), 100)
-  expect_equal(sum(is.nan(rDNB(100, stats::runif(1, -5, 0), stats::runif(1, -5, 0)))), 100)
+  expect_equal(sum(suppressWarnings(is.nan(rDNB(100, stats::runif(1, -5, 0), stats::runif(1, 0, 5))))), 100)
+  expect_equal(sum(suppressWarnings(is.nan(rDNB(100, stats::runif(1, 0, 5), stats::runif(1, -5, 0))))), 100)
+  expect_equal(sum(suppressWarnings(is.nan(rDNB(100, stats::runif(1, -5, 0), stats::runif(1, -5, 0))))), 100)
 })
 
 

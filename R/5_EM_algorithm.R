@@ -1,10 +1,11 @@
 ## Options for estimation ------------------------------------------------------
-#' Control Parameters for the EM Algorithm
+#' Auxiliary for Controlling a CDNBCR Fit via EM Algorithm
 #'
-#' A list of control parameters for the Expectation-Maximization (EM) algorithm used in the
-#'     estimation of the Correlated Destructive Negative Binomial Cure Rate Model.
+#' Optimization parameters that control the fitting of the correlated destructive negative
+#'     binomial cure rate model (CDNBCR) via Expectation-Maximization (EM) algorithm.
 #'
-#' @param method Optimization method for the "M" steps. The default method is \code{"BFGS"}.
+#' @param method Optimization method for the "M" steps, specifying the \code{method} argument
+#'    passed to \code{\link[stats]{optim}}.
 #' @param maxit Maximum number of EM algorithm iterations. The default is \code{10.000} iterations.
 #'     If this limit is reached, a warning message is displayed.
 #' @param start An optional vector of initial values for the algorithm. The expected order of the
@@ -16,9 +17,38 @@
 #'
 #' @author Rodrigo M. R. de Medeiros <\email{rodrigo.matheus@ufrn.br}>
 #'
-#' @return A list containing the specified control parameters.
+#' @return A list with components named as the arguments.
 #' @export
 #'
+#' @seealso
+#' \code{\link{cdnbcr}} for parameter estimation in the CDNBCR model via EM algorithm.
+#'
+#' @examples
+#' \donttest{## Loading the survival package
+#' library(survival)
+#'
+#' ## Dataset:  (see ?e1690)
+#' head(e1690)
+#'
+#' ## Correlated destructive fit (default fit)
+#' fit1 <- cdnbcr(Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+#'                 trt + thickness, data = e1690)
+#'
+#' ## Changing the initial values
+#' beta1 <- c(1, 1.5, 2)
+#' phi <- 2
+#' beta2 <- c(0.5, -0.5, 0.5)
+#' alpha <- 0.5
+#' mu <- 3
+#' sigma <- 2
+#'
+#' fit2 <- cdnbcr(Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+#'                 trt + thickness, data = e1690,
+#'                start = c(beta1, phi, beta2, alpha, mu, sigma))
+#'
+#' ## Compare the fits:
+#' fit1
+#' fit2}
 control_EM <- function(method = "BFGS", maxit = 10000, start = NULL,
                        prec = 5e-5, ...)
 {
@@ -35,40 +65,40 @@ control_EM <- function(method = "BFGS", maxit = 10000, start = NULL,
 }
 
 
-# EM algorithm
-#' EM Algorithm for Model Estimation
-#'
-#' An EM algorithm for the maximum likelihood estimation of the parameters of the Correlated
-#'     Destructive Negative Binomial Cure Rate Model.
-#'
-#' @param time A vector of positive response variables (the follow up time).
-#' @param delta Status indicator where \code{0} represents right censoring, and \code{1} indicates an
-#'     event occurrence at the observed time.
-#' @param Z1,Z2 Design matrices for the regression structures of \code{theta} and \code{p}, respectively.
-#' @param theta.link,p.link Link functions for the regression models of \code{theta} and \code{p}.
-#'     The default values are \code{"log"} for \code{theta.link} and \code{"logit"} for \code{p.link}.
-#'     Other options are available via \code{\link[stats]{make.link}}. The choice of link functions
-#'     should consider the possible values of \code{theta} (positive values) and \code{p} (unit interval [0,1]).
-#' @param alpha If \code{TRUE} (default), \code{alpha} is included in the estimation process to
-#'     model correlation between the initial competing causes. If \code{FALSE}, \code{alpha} is
-#'     fixed at \code{0}, reducing the model to the uncorrelated case.
-#' @param control A list of control parameters for the EM algorithm, specified using \code{\link{control_EM}}.
-#' @param ... Additional arguments passed to \code{\link{control_EM}}.
-#'
-#' @return \code{EM} returns a list with the following components:
-#' \describe{
-#'   \item{estimates}{ A vector containing the estimated model parameters.}
-#'   \item{par}{A named list of parameter estimates, that is, a list containing the elements
-#'       \code{beta1}, \code{phi}, \code{beta2}, \code{alpha}, \code{mu}, and \code{sigma}.}
-#'   \item{iterations}{ The number of EM iterations performed.}
-#'   \item{convergence}{An integer indicating the convergence status, where \code{0} indicates
-#'       successful convergence and \code{1} indicates that the maximum number of iterations has been reached.}
-#'   \item{vcov}{The estimated covariance matrix of the estimated parameters.}
-#'   \item{latent}{Latent variables obtained during the EM algorithm.}
-#'  }
-#'
-#' @author Diego I. Gallardo \email{diego.gallardo.mateluna@gmail.com}
-#' @author Rodrigo M. R. de Medeiros \email{rodrigo.matheus@ufrn.br}
+# # EM algorithm
+# #' EM Algorithm for Model Estimation
+# #'
+# #' An EM algorithm for the maximum likelihood estimation of the parameters of the Correlated
+# #'     Destructive Negative Binomial Cure Rate Model.
+# #'
+# #' @param time A vector of positive response variables (the follow up time).
+# #' @param delta Status indicator where \code{0} represents right censoring, and \code{1} indicates an
+# #'     event occurrence at the observed time.
+# #' @param Z1,Z2 Design matrices for the regression structures of \code{theta} and \code{p}, respectively.
+# #' @param theta.link,p.link Link functions for the regression models of \code{theta} and \code{p}.
+# #'     The default values are \code{"log"} for \code{theta.link} and \code{"logit"} for \code{p.link}.
+# #'     Other options are available via \code{\link[stats]{make.link}}. The choice of link functions
+# #'     should consider the possible values of \code{theta} (positive values) and \code{p} (unit interval [0,1]).
+# #' @param alpha If \code{TRUE} (default), \code{alpha} is included in the estimation process to
+# #'     model correlation between the initial competing causes. If \code{FALSE}, \code{alpha} is
+# #'     fixed at \code{0}, reducing the model to the uncorrelated case.
+# #' @param control A list of control parameters for the EM algorithm, specified using \code{\link{control_EM}}.
+# #' @param ... Additional arguments passed to \code{\link{control_EM}}.
+# #'
+# #' @return \code{EM} returns a list with the following components:
+# #' \describe{
+# #'   \item{estimates}{ A vector containing the estimated model parameters.}
+# #'   \item{par}{A named list of parameter estimates, that is, a list containing the elements
+# #'       \code{beta1}, \code{phi}, \code{beta2}, \code{alpha}, \code{mu}, and \code{sigma}.}
+# #'   \item{iterations}{ The number of EM iterations performed.}
+# #'   \item{convergence}{An integer indicating the convergence status, where \code{0} indicates
+# #'       successful convergence and \code{1} indicates that the maximum number of iterations has been reached.}
+# #'   \item{vcov}{The estimated covariance matrix of the estimated parameters.}
+# #'   \item{latent}{Latent variables obtained during the EM algorithm.}
+# #'  }
+# #'
+# #' @author Diego I. Gallardo \email{diego.gallardo.mateluna@gmail.com}
+# #' @author Rodrigo M. R. de Medeiros \email{rodrigo.matheus@ufrn.br}
 EM <- function(time, delta, Z1 = NULL, Z2 = NULL,
                theta.link = "log", p.link = "logit", alpha = TRUE,
                control = control_EM(...), ...)

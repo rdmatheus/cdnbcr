@@ -7,6 +7,7 @@ output: github_document
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = FALSE,
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "80%",
@@ -81,27 +82,33 @@ par(mfrow = c(1, 1))
 
 By default, the `predict()` function returns the fitted survival time or the fitted cure rate for the data that has been observed. If new individuals are added to the sample, the survival function and cure rate can also be estimated with the `predict()` function. See the example below
 ```{r}
-## Without new data
+## Suppose we are interested in obtaining predictions for the following individuals:
+newdata <- data.frame(trt = factor(c("Control", "Control", "Chemotherapy", "Chemotherapy")),
+                     age = median(e1690$age),
+                     sex = factor(c("Male", "Female", "Male", "Female")),
+                     thickness = median(e1690$thickness),
+                     nodeII = c(0, 0, 0, 0),
+                     nodeIII = c(0, 0, 0, 0),
+                     nodeIV = c(1, 1, 1, 1))
+newdata
 
-### Fitted survival time and cure rate for the first six individuals observed
-### in the sample:
-
-## survival time
-head(predict(fit)) 
-
-## cure rate
-head(predict(fit, type = "cure")) 
-
-## Fitted survival time and cure rate with new data:
-newdata <- data.frame(trt = "Control", time = 5, status = 1, age = 50,
-                      sex = "Male", thickness = 3,
-                      nodeII = 0, nodeIII = 0, nodeIV = 1)
-
-## survival time
-head(predict(fit, newdata = newdata))
-
-## cure rate
-head(predict(fit, newdata = newdata, type = "cure")) 
+## Fitted survival curves
+pred <- predict(fit, newdata)
+plot(pred[1, ], type = "l", ylim = c(0, 1), xlab = "Time", ylab = "Survival")
+lines(pred[2, ], col = 2, lty = 2)
+lines(pred[3, ], col = 3, lty = 3)
+lines(pred[4, ], col = 4, lty = 4)
+legend("topright", legend = c("trt: Control, sex: Male",
+                             "trt: Control, sex: Female",
+                             "trt: Chemotherapy, sex: Male",
+                             "trt: Chemotherapy, sex: Female"),
+      col = 1:4, lty = 1:4)
+## Predicted cure rates
+predict(fit, newdata, type = "cure")
+## Predicted expected number of initial competing causes
+predict(fit, newdata, type = "theta")
+## Predicted activation probability of an initial competing cause
+predict(fit, newdata, type = "p")
 ```
 The use of the EM algorithm also makes it possible to extract latent variables underlying the definition of the destructive model, such as the number of initial competing causes for the occurrence of the event (called "M") and the remaining causes that were not destroyed (called "D"). These variables are made available in the `"cdnbcr"` object. See below.
 ```{r, fig.asp=0.91}

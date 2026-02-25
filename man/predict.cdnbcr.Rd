@@ -2,36 +2,117 @@
 % Please edit documentation in R/7_methods.R
 \name{predict.cdnbcr}
 \alias{predict.cdnbcr}
-\title{Predict Method for the Correlated Destructive Negative Binomial Cure
-    Rate Regression}
+\title{Prediction Method for CDNBCR Models}
 \usage{
 \method{predict}{cdnbcr}(
   object,
   newdata = NULL,
-  type = c("survival", "cure"),
+  type = c("survival", "cure", "theta", "p"),
+  time,
   na.action = stats::na.pass,
   ...
 )
 }
 \arguments{
-\item{object}{A \code{"cdnbcr"} object.}
+\item{object}{An object of class \code{"cdnbcr"}, as returned by \code{\link{cdnbcr}}.}
 
-\item{newdata}{Optionally, a data frame in which to look for variables
-with which to predict. If omitted, the fitted linear predictors are
-used.}
+\item{newdata}{An optional data frame containing covariate values for which
+predictions are required. If omitted, predictions are computed for the
+data used in the model fit.}
 
-\item{type}{The type of prediction required. The default is the
-fitted survival function (\code{"survival"}). The alternative
-(\code{"cure"}) provides the fitted cure rate function.}
+\item{type}{Character string indicating the type of prediction. Possible values are:
+\describe{
+  \item{\code{"survival"}}{Predicted survival function evaluated at the values supplied in \code{time}.}
+  \item{\code{"cure"}}{Predicted cure fraction (probability of being cured).}
+  \item{\code{"theta"}}{Predicted expected number of initial competing causes.}
+  \item{\code{"p"}}{Predicted activation probability of an initial competing cause.}
+}}
 
-\item{na.action}{function determining what should be done with missing
-values in \code{newdata}. The default is to predict \code{NA}.}
+\item{time}{Numeric vector of time points at which the survival function is
+evaluated. Only used when \code{type = "survival"}.}
 
-\item{...}{arguments passed to or from other methods.}
+\item{na.action}{A function specifying how missing values in \code{newdata}
+should be handled. The default is to return \code{NA} for predictions
+involving incomplete cases.}
+
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-A vector of predictions.
+A numeric vector or matrix of predicted values. The structure of the output
+depends on the selected \code{type}:
+\describe{
+  \item{\code{"survival"}}{A matrix of survival probabilities with rows
+    corresponding to observations in \code{newdata} (or the original data)
+    and columns corresponding to the values in \code{time}.}
+  \item{\code{"cure"}}{A numeric vector with the predicted cure fractions.}
+  \item{\code{"theta"}}{A numeric vector with the predicted expected numbers of
+    initial competing causes.}
+  \item{\code{"p"}}{A numeric vector with the predicted activation probabilities.}
+}
 }
 \description{
-Obtains predictions from a fitted \code{"cdnbcr"} object.
+Computes fitted values and predictions from a correlated destructive negative
+binomial cure rate (CDNBCR) model fitted with \code{\link{cdnbcr}}. Predictions
+may include the survival function, cure rate, expected number of initial
+competing causes, or the activation probability of competing causes.
+}
+\examples{
+\donttest{## Loading survival package
+library(survival)
+
+## Dataset: e1690 (see ?e1690)
+head(e1690)
+
+## Correlated destructive fit
+fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+                sex + trt + thickness + age, data = e1690)
+
+## Consider the interest in obtaining predictions of the survival function and
+## cure fraction for the following individuals:
+newdata <- data.frame(trt = c("Control", "Control", "Chemotherapy", "Chemotherapy"),
+                      age = median(e1690$age),
+                      sex = c("Male", "Female", "Male", "Female"),
+                      thickness = median(e1690$thickness),
+                      nodeII = c(0, 0, 0, 0),
+                      nodeIII = c(0, 0, 0, 0),
+                      nodeIV = c(1, 1, 1, 1))
+newdata
+
+## Fitted survival curves
+pred <- predict(fit, newdata)
+
+plot(pred[1, ], type = "l", ylim = c(0, 1), xlab = "Time", ylab = "Survival")
+lines(pred[2, ], col = 2, lty = 2)
+lines(pred[3, ], col = 3, lty = 3)
+lines(pred[4, ], col = 4, lty = 4)
+legend("topright", legend = c("trt: Control, sex: Male",
+                              "trt: Control, sex: Female",
+                              "trt: Chemotherapy, sex: Male",
+                              "trt: Chemotherapy, sex: Female"),
+       col = 1:4, lty = 1:4)
+
+## Predicted cure rates
+predict(fit, newdata, type = "cure")
+
+## Predicted expected number of initial competing causes
+predict(fit, newdata, type = "theta")
+
+## Predicted activation probability of an initial competing cause
+predict(fit, newdata, type = "p")}
+}
+\references{
+Cox, D. R., and Snell, E. J. (1968). A general definition of residuals.
+    \emph{Journal of the Royal Statistical Society, Series B}, \bold{30}, 248--265.
+
+De Medeiros, R. M. R., Bourguignon, M., Gómez, Y. M., and Gallardo, D. I. (2026).
+    A correlated approach to cancer cell counting in cure rate models.
+
+Rodrigues, J., De Castro, M., Balakrishnan, N., and Cancho, V. G. (2011).
+    Destructive weighted Poisson cure rate models. \emph{Lifetime Data Analysis},
+    \bold{17}, 333--346.
+}
+\author{
+Diego I. Gallardo <\email{diego.gallardo.mateluna@gmail.com}>
+
+Rodrigo M. R. de Medeiros <\email{rodrigo.matheus@ufrn.br}>
 }

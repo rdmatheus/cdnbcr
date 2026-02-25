@@ -1,23 +1,21 @@
 Package: cdnbcr
 Type: Package
 Title: An EM Algorithm for Estimation in the Correlated Destructive Negative Binomial Cure Rate Model
-Version: 1.0.0
-Authors@R: c(person("Rodrigo", "M. R. de Medeiros",
-                      email = "rodrigo.matheus@live.com",
-                      role = c("aut", "cre"),
-              comment = c(ORCID = "0000-0001-8101-3038")),
+Version: 1.1.0
+Authors@R: c(person("Rodrigo", "Medeiros",
+          email = "rodrigo.matheus@ufrn.br",
+          role = c("aut", "cre", "cph"),
+          comment = c(ORCID = "0000-0001-8101-3038")),
               person("Diego", "Gallardo",
                       email = "diego.gallardo.mateluna@gmail.com",
                       role = c("aut"),
               comment = c(ORCID = "0000-0001-8184-7403")))
 Maintainer: Rodrigo M. R. de Medeiros <rodrigo.matheus@ufrn.br>
-Description: Description: Implements an Expectation-Maximization (EM) algorithm for maximum 
-    likelihood estimation in the Correlated Destructive Negative Binomial Cure 
-    Rate (CDNBCR) model. This model describes the time until a specific event 
-    occurs (e.g., patient survival times) while accounting for the presence 
-    of a cure fraction. It assumes that the event occurs due to multiple 
-    competing causes, which may be correlated.
-License: MIT + file LICENSE
+Description: Provides tools for modeling time-to-event data with a cure fraction under correlated
+    destructive negative binomial cure rate models. The models assume multiple latent competing 
+    causes with possible dependence and allow for elimination (inactivation) of some initial causes.
+    Estimation is performed via an Expectation–Maximization algorithm, and diagnostic tools based 
+    on Cox–Snell residuals are provided.
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rdmatheus/cdnbcr
@@ -32,3 +30,4 @@ Imports:
     pracma (>= 2.3.3)
 Depends: 
     R (>= 3.5)
+License: GPL (>= 3)

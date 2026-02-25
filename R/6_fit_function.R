@@ -1,108 +1,130 @@
-#' Correlated Destructive Negative Binomial Cure Rate Model
+#' @name cdnbcr
 #'
-#' Implements an Expectation-Maximization (EM) algorithm for maximum likelihood estimation in the
-#'    Correlated Destructive Negative Binomial Cure Rate Model.
+#' @title Correlated Destructive Negative Binomial Cure Rate Model
 #'
-#' @param formula A symbolic description of the model. It must include a \code{\link[survival]{Surv}}
-#'     object as the response on the left-hand side of the \code{~} operator. The right-hand side
-#'     of the formula can contain covariates for two sub-models: one for \code{theta} (expected number
-#'     of initial competing causes) and one for \code{p} (probability of activation of an initial
-#'     competing cause). Covariates are separated by the \code{|} symbol. See details below.
-#' @param data A data frame containing the variables specified in the formula.
+#' @description Fits the correlated destructive negative binomial cure rate (CDNBCR) model to right-censored
+#' survival data using maximum likelihood estimation via the expectation–maximization (EM)
+#' algorithm.
+#'
+#' @param formula A model formula following the syntax of the \code{Formula} package. The left-hand
+#'     side must be a \code{\link[survival]{Surv}} object specifying the observed follow-up time and
+#'     censoring indicator. The right-hand side may contain two regression components separated by
+#'     the \code{|} operator: the first for \code{theta} (expected number of initial competing causes)
+#'     and the second for \code{p} (activation probability of an initial competing cause).
+#'     If only one component is provided, it is used for \code{theta} and \code{p} is modeled with
+#'     an intercept only.
+#' @param data A data frame containing the variables used in the model.
 #' @param subset An optional vector specifying a subset of observations to be used in the model.
-#' @param na.action A function to handle missing values, see \code{\link[stats]{model.frame}}.
+#' @param na.action A function indicating how to handle missing values. See \code{\link[stats]{model.frame}}.
 #' @param theta.link,p.link Link functions for the regression submodels of \code{theta} and \code{p}.
 #'     Defaults are \code{"log"} for \code{theta.link} and \code{"logit"} for \code{p.link}.
-#'     Other options are available via \code{\link[stats]{make.link}}.
-#' @param alpha Logical; if \code{TRUE} (default), \code{alpha} is estimated to model correlation
-#'     among initial competing causes. If \code{FALSE}, \code{alpha} is fixed at 0, reducing the
-#'     model to the uncorrelated case.
-#' @param y Logical; if \code{TRUE}, the response vector is returned.
-#' @param x Logical; if \code{TRUE}, the model matrices are returned.
-#' @param control A list of control parameters for the EM algorithm, specified using \code{\link{control_EM}}.
+#'     Alternative links can be specified using \code{\link[stats]{make.link}}.
+#' @param alpha Logical; if \code{TRUE} (default), the correlation parameter \code{alpha} is estimated.
+#'     If \code{FALSE}, \code{alpha} is fixed at zero, yielding the uncorrelated destructive model.
+#' @param y Logical; if \code{TRUE} (default), the response vector is returned.
+#' @param x Logical; if \code{TRUE} (default), the model matrices are returned. For \code{print()},
+#'    \code{x} is a fitted model object of class \code{"cdnbcr"}.
+#' @param control A list of control parameters for the EM algorithm, as returned by
+#'     \code{\link{control_EM}}.
 #' @param ... Additional arguments passed to \code{\link{control_EM}}.
+#' @param digits a non-null value for digits specifies the minimum number of significant digits to
+#'     be printed in values.
 #'
-#' @details The \code{formula} argument follows the syntax of the \code{Formula} package
-#'     (Zeileis and Croissant, 2010) that allows specifying regression structures for more than one
-#'      parameter in the model. For example, suppose the data are formed as follows:
+#' @details
+#' The CDNBCR model assumes that the number of initial competing causes follows a negative binomial
+#' distribution with mean \eqn{\theta > 0} and dispersion parameter \eqn{\phi > 0}. Each initial
+#' cause may remain active with probability \eqn{p \in (0, 1)}, and the activation indicators
+#' may be correlated through the parameter \eqn{\alpha \in [0, 1]}. The event time is defined
+#' as the minimum of the latent failure times associated with the remaining active causes.
+#' Individuals with no active causes are considered cured and will never experience the event
+#' of interest. Regression structures can be specified for both the expected number of initial
+#' competing causes (\eqn{\theta}) and the activation probability (\eqn{p}).
 #'
-#'  \tabular{cccccccccccc}{
-#'  \bold{time}   \tab \tab \bold{status} \tab \tab \bold{x1} \tab \tab \bold{x2} \tab \tab \bold{z1} \tab \tab \bold{z2} \cr
-#'  time_1  \tab \tab status_1 \tab \tab x1_1 \tab \tab x2_1 \tab \tab z1_1 \tab \tab z2_1 \cr
-#'  time_2  \tab \tab status_2 \tab \tab x1_2 \tab \tab x2_2 \tab \tab z1_2 \tab \tab z2_2 \cr
-#'  ...  \tab \tab ... \tab \tab... \tab \tab ... \tab \tab ... \tab \tab ...  \cr
-#'  time_n  \tab \tab status_n \tab \tab x1_n \tab \tab x2_n \tab \tab z1_n  \tab \tab z2_n \cr
-#'  }
-#' where, for each element of the sample, \code{time} is the follow-up time; \code{status}
-#' indicates whether the observed time refers to the event of interest (\code{status = 1}) or
-#' whether it was right-censored (\code{status = 0}); and \code{x1, x2, z1, z2} are
-#' explanatory variables. Then, \code{formula = Surv(time, status) ~ x1 + x2 | z1 + z2}
-#' specifies a CDNBCR model with two regression structures, one for \code{theta} in terms of the
-#' explanatory variables \code{x1} and \code{x2} and another for \code{p} in terms of the explanatory
-#' variables \code{z1} and \code{z2}.
+#' The CDNBCR model reduces to the (uncorrelated) destructive negative binomial cure rate model
+#' (Rodrigues et al., 2011) when \eqn{\alpha = 0}. In practice, this is obtained by setting
+#' \code{alpha = FALSE} in \code{cdnbcr()}.
 #'
+#' The response must be specified using \code{Surv(time, status)}, where \code{time} is the observed
+#' follow-up time and \code{status} is the event indicator (1 = event, 0 = right-censored).
+#' Regression structures can be specified separately for \eqn{\theta} and \eqn{p} using the
+#' \code{|} operator. For example,
 #'
-#' @return The function \code{cdnbcr} returns an object of class \code{"cdnbcr"}, which consists of a list
-#'     with the following components:
+#' \preformatted{
+#' Surv(time, status) ~ x1 + x2 | z1 + z2
+#' }
+#'
+#' specifies a model in which \eqn{\theta} depends on covariates \code{x1} and \code{x2}, while
+#' \eqn{p} depends on covariates \code{z1} and \code{z2}.
+#'
+#' @return An object of class \code{"cdnbcr"} with components:
 #' \describe{
-#'   \item{coefficients}{A list containing the vectors of the regression coefficients \code{beta1}
-#'        and \code{beta2}, associated with the regression structures of \code{theta} and \code{p},
-#'         respectively.
-#'   }
-#'   \item{phi, alpha, mu, sigma}{Estimates of the additional parameters of the model.}
-#'   \item{fitted}{Fitted values for \code{theta} and \code{p}}
-#'   \item{residuals}{Vector of Cox-Snell residuals.}
-#'   \item{vcov}{The estimated covariance matrix of the estimated parameters.}
+#'   \item{coefficients}{A list with the estimated regression coefficients for the \code{theta}
+#'        and \code{p} submodels.}
+#'   \item{phi, alpha, mu, sigma}{Maximum likelihood estimates of the additional model parameters.}
+#'   \item{fitted}{Fitted values of \code{theta} and \code{p} for each observation.}
+#'   \item{links}{A named list with the link functions used in the \code{theta} and \code{p}
+#'        regression submodels.}
+#'   \item{vcov}{Estimated covariance matrix associated with the parameter estimates.}
 #'   \item{logLik}{Log-likelihood of the fitted model.}
-#'   \item{nobs}{Number of observations.}
-#'   \item{df.null}{Residual degrees of freedom in the null model.}
-#'   \item{df.residual}{Residual degrees of freedom in the fitted model.}
-#'   \item{convergence}{Integer code indicating convergence status (0 = successful, 1 = max iterations reached).}
+#'   \item{nobs}{Number of observations used in the fit.}
+#'   \item{df.null}{Residual degrees of freedom of the null model.}
+#'   \item{df.residual}{Residual degrees of freedom of the fitted model.}
+#'   \item{convergence}{Convergence code of the EM algorithm (0 = successful, 1 = maximum iterations reached).}
 #'   \item{inits}{Initial values used in the EM algorithm.}
-#'   \item{control}{List of control parameters used in the EM algorithm.}
-#'   \item{EM_iterations}{Number of EM iterations performed.}
-#'   \item{call}{Function call.}
-#'   \item{formula}{Model formula used.}
-#'   \item{terms}{List of terms objects for the two regression frameworks.}
-#'   \item{y}{Response vector, if \code{y = TRUE}.}
-#'   \item{x}{Model matrices, if \code{x = TRUE}.}
-#'  }
+#'   \item{control}{Control parameters used in the EM algorithm.}
+#'   \item{iterations}{Number of EM iterations.}
+#'   \item{latent}{A list with components \code{M}, \code{D}, and \code{Y} containing
+#'        posterior expectations of the latent variables used in the EM algorithm. Here,
+#'        \code{M} denotes the initial number of competing causes, \code{D} is the number of
+#'        remaining active competing causes, and \code{Y} is a latent Bernoulli variable that governs
+#'        the activation regime of the destructive mechanism (and induces dependence through
+#'        \code{alpha}).}
+#'   \item{call}{Matched function call.}
+#'   \item{formula}{Model formula.}
+#'   \item{terms}{Terms objects for the regression submodels.}
+#'   \item{y}{Response vector (if \code{y = TRUE}).}
+#'   \item{x}{Model matrices (if \code{x = TRUE}).}
+#' }
+#'
+#' @seealso
+#' \code{\link{summary.cdnbcr}} for detailed model summaries,
+#' \code{\link{residuals.cdnbcr}} to extract Cox--Snell residuals (Cox and Snell, 1968),
+#' \code{\link{plot.cdnbcr}} for diagnostic plots based on Cox--Snell residuals, and
+#' \code{\link{predict.cdnbcr}} for prediction under the CDNBCR model.
+#' Additional methods for \code{"cdnbcr"} objects are documented in \code{\link{cdnbcr-methods}}.
+#'
+#' @references
+#' Cox, D. R., and Snell, E. J. (1968). A general definition of residuals.
+#'     \emph{Journal of the Royal Statistical Society B}, \bold{30}, 248--265.
+#'
+#' De Medeiros, R. M. R., Bourguignon, M., Gómez, Y. M., and Gallardo, D. I. (2026).
+#'     A correlated approach to cancer cell counting in cure rate models.
+#'
+#' Rodrigues, J., De Castro, M., Balakrishnan, N., and Cancho, V. G. (2011).
+#'     Destructive weighted Poisson cure rate models. \emph{Lifetime Data Analysis}, \bold{17}, 333--346
 #'
 #' @examples
-#'  \dontrun{
-#'   ## Loading survival package
-#'   library(survival)
+#' \donttest{## Loading survival package
+#' library(survival)
 #'
-#'   ## Data (see ?e1690)
-#'   head(e1690)
+#' ## Dataset: e1690 (see ?e1690)
+#' head(e1690)
 #'
-#'   ## Correlated destructive fit
-#'   fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+#' ## Correlated destructive fit
+#' fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
 #'                 sex + trt + thickness + age, data = e1690)
+#' fit
 #'
-#'   summary(fit)
-#'
-#'   ## Cox-Snell residuals
-#'   par(mfrow = c(1, 2))
-#'   plot(fit, ask = FALSE)
-#'   par(mfrow = c(1, 1))
-#'
-#'   ## Latent variables
-#'   plot(fit$latent$M, ylab = "Initial competing causes", pch = 16, cex = 0.8)
-#'   plot(fit$latent$D, ylab = "Remaining competing causes", pch = 16, cex = 0.8)
-#'
-#'   ## Uncorrelated destructive fit (alpha = 0)
-#'   fit0 <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
-#'                  sex + trt + thickness + age, alpha = FALSE, data = e1690)
-#'
-#'   summary(fit0)
-#'  }
+#' ## Uncorrelated destructive fit
+#' fit0 <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
+#'                  sex + trt + thickness + age, data = e1690, alpha = FALSE)
+#' fit0}
 #' @export
 #' @author Diego I. Gallardo \email{diego.gallardo.mateluna@gmail.com}
 #' @author Rodrigo M. R. de Medeiros \email{rodrigo.matheus@ufrn.br}
 #'
 cdnbcr <- function(formula, data, subset, na.action, theta.link = "log", p.link = "logit",
-                   alpha = TRUE, control = control_EM(...), y = FALSE, x = FALSE, ...)
+                   alpha = TRUE, control = control_EM(...), y = TRUE, x = TRUE, ...)
 {
 
   ## Call
@@ -206,10 +228,6 @@ cdnbcr <- function(formula, data, subset, na.action, theta.link = "log", p.link 
                                         colnames(Z2), if (alpha_id) "alpha" else NULL,
                                         "mu", "sigma")
 
-  ## Cox-Snell residuals
-  Spop <- pcdnbcr(time, theta, phi, p, alpha, mu, sigma, lower.tail = FALSE)
-  residuals <- -log(Spop)
-
   ## Log-likelihood
   logLik <- ll(estimates, time, delta, Z1, Z2, theta.link, p.link, alpha_id)
 
@@ -223,7 +241,6 @@ cdnbcr <- function(formula, data, subset, na.action, theta.link = "log", p.link 
               sigma = sigma,
               fitted = list(theta = c(theta), p = c(p)),
               links = list(theta.link = theta.link, p.link = p.link),
-              residuals = residuals,
               vcov = vcov,
               logLik = logLik,
               nobs = n,
@@ -232,7 +249,7 @@ cdnbcr <- function(formula, data, subset, na.action, theta.link = "log", p.link 
               convergence = convergence,
               inits = inits,
               control = control,
-              EM_iterations = opt$iterations,
+              iterations = iterations,
               latent = opt$latent)
 
 
@@ -250,3 +267,39 @@ cdnbcr <- function(formula, data, subset, na.action, theta.link = "log", p.link 
   class(out) <- "cdnbcr"
   out
 }
+
+# Print
+#' @rdname cdnbcr
+#' @export
+print.cdnbcr <- function(x, digits = getOption("digits"), ...)
+{
+  r <- x$nobs - x$df.residual
+
+  cat("Call:\n")
+  print(x$call)
+
+  cat("\nRegression model for theta (", x$links$theta.link, " link):\n", sep = "")
+  print(round(x$coefficients$theta, digits))
+
+  cat("\nRegression model for p (", x$links$p.link, " link):\n", sep = "")
+  print(round(x$coefficients$p, digits))
+
+  cat("\nDispersion, dependence, and baseline parameters:\n")
+  if (is.null(x$alpha)) {
+    par <- cbind(phi = x$phi, mu = x$mu, sigma = x$sigma)
+  } else {
+    par <- cbind(phi = x$phi, alpha = x$alpha, mu = x$mu, sigma = x$sigma)
+  }
+
+  rownames(par) <- ""
+  print(round(par, digits))
+
+  cat("\n---\n")
+  cat("Log-likelihood: ", round(x$logLik, digits), "\n", sep = "")
+  cat("AIC: ", round(2 * (r - x$logLik), digits),
+      "   BIC: ", round(log(x$nobs) * r - 2 * x$logLik, digits), "\n", sep = "")
+  cat("Number of EM iterations: ", x$EM_iterations, "\n", sep = "")
+
+  invisible(x)
+}
+
