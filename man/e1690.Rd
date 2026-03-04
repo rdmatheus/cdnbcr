@@ -27,6 +27,10 @@ A well-known dataset from a Phase III cutaneous melanoma clinical trial (Ibrahim
     surgery. After eliminating missing data, the observations include 417 patients from 1991 to
     1995, with follow-up until 1998.
 }
+\examples{
+data(e1690)
+plot(time ~ trt, e1690, xlab = "Treatment", ylab = "Time")
+}
 \references{
 Ibrahim, J. G., Chen, M., Sinha, D. (2001). \emph{Bayesian Survival Analysis}. Springer.
 }

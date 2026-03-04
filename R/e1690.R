@@ -24,4 +24,7 @@
 #'
 #' Ibrahim, J. G., Chen, M., Sinha, D. (2001). \emph{Bayesian Survival Analysis}. Springer.
 #'
+#' @examples
+#' data(e1690)
+#' plot(time ~ trt, e1690, xlab = "Treatment", ylab = "Time")
 "e1690"

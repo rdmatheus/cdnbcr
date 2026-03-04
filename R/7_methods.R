@@ -423,6 +423,9 @@ print.summary.cdnbcr <- function(x, digits = getOption("digits"), ...)
 #' Rodrigues, J., De Castro, M., Balakrishnan, N., and Cancho, V. G. (2011).
 #'     Destructive weighted Poisson cure rate models. \emph{Lifetime Data Analysis}, \bold{17}, 333--346
 #'
+#' @returns \code{plot} method for \code{"cdnbcr"} objects returns two types of
+#'     diagnostic plots based on the Cox-Snell residuals.
+#'
 #' @examples
 #' \donttest{## Loading survival package
 #' library(survival)
@@ -435,9 +438,9 @@ print.summary.cdnbcr <- function(x, digits = getOption("digits"), ...)
 #'               sex + trt + thickness + age, data = e1690)
 #'
 #' ## Plot of the Cox-Snell residuals
-#' par(mfrow = c(1, 2))
+#' oldpar <- par(mfrow = c(1, 2))
 #' plot(fit, ask = FALSE)
-#' par(mfrow = c(1, 1))}
+#' par(oldpar)}
 plot.cdnbcr <- function(x, which = 1:2,
                         ask = prod(graphics::par("mfcol")) < length(which) &&
                           grDevices::dev.interactive(),
@@ -565,7 +568,7 @@ plot.cdnbcr <- function(x, which = 1:2,
 #' fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
 #'                 sex + trt + thickness + age, data = e1690)
 #'
-#' ## Suppose we are interested in obtaining predictions for the following individuals:
+#' ## New data for predictions
 #' newdata <- data.frame(trt = c("Control", "Control", "Chemotherapy", "Chemotherapy"),
 #'                       age = median(e1690$age),
 #'                       sex = c("Male", "Female", "Male", "Female"),

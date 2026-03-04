@@ -1,7 +1,7 @@
 Package: cdnbcr
 Type: Package
-Title: An EM Algorithm for Estimation in the Correlated Destructive Negative Binomial Cure Rate Model
-Version: 1.1.0
+Title: Correlated Destructive Negative Binomial Cure Rate Model
+Version: 1.1.1
 Authors@R: c(person("Rodrigo", " M. R. de Medeiros",
           email = "rodrigo.matheus@ufrn.br",
           role = c("aut", "cre", "cph"),
@@ -14,8 +14,8 @@ Maintainer: Rodrigo M. R. de Medeiros <rodrigo.matheus@ufrn.br>
 Description: Provides tools for modeling time-to-event data with a cure fraction under correlated
     destructive negative binomial cure rate models. The models assume multiple latent competing 
     causes with possible dependence and allow for elimination (inactivation) of some initial causes.
-    Estimation is performed via an Expectation–Maximization algorithm, and diagnostic tools based 
-    on Cox–Snell residuals are provided.
+    Estimation is performed via an Expectation-Maximization algorithm, and diagnostic tools based 
+    on Cox-Snell residuals are provided.
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rdmatheus/cdnbcr

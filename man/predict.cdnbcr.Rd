@@ -67,7 +67,7 @@ head(e1690)
 fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
                 sex + trt + thickness + age, data = e1690)
 
-## Suppose we are interested in obtaining predictions for the following individuals:
+## New data for predictions
 newdata <- data.frame(trt = c("Control", "Control", "Chemotherapy", "Chemotherapy"),
                       age = median(e1690$age),
                       sex = c("Male", "Female", "Male", "Female"),

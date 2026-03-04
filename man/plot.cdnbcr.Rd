@@ -27,6 +27,10 @@ of the numbers \code{1:2}.}
 
 \item{pch, cex, lwd, ...}{Graphical parameters (see \code{\link[graphics]{par}}).}
 }
+\value{
+\code{plot} method for \code{"cdnbcr"} objects returns two types of
+    diagnostic plots based on the Cox-Snell residuals.
+}
 \description{
 Produces two diagnostic plots to assess the goodness-of-fit of a Correlated Destructive Negative
     Binomial Cure Rate model fit based on the Cox-Snell residuals. Available plots include the
@@ -53,9 +57,9 @@ fit <- cdnbcr(formula = Surv(time, status) ~ nodeII + nodeIII + nodeIV - 1 |
               sex + trt + thickness + age, data = e1690)
 
 ## Plot of the Cox-Snell residuals
-par(mfrow = c(1, 2))
+oldpar <- par(mfrow = c(1, 2))
 plot(fit, ask = FALSE)
-par(mfrow = c(1, 1))}
+par(oldpar)}
 }
 \references{
 Cox, D. R., and Snell, E. J. (1968). A general definition of residuals.
